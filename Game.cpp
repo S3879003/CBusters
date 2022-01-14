@@ -2,9 +2,9 @@
 #include <iostream>
 #define BOARD_SIZE 26
 
-//constructor for game object -- In future needs to take in player names.
+//constructor for game object -- In future needs to take in player names from main menu.
 game::game(){
-    //setup a new game board.
+    //setup a new game empty board.
     setupGameboard();
 
     //display the game board
@@ -13,10 +13,7 @@ game::game(){
     //initilize tile bag - randomly sort the bag.
     setupTileBag();
 
-    //initilize player objects array.
-    //player* playerArr[numPlayers];
-    
-
+    //setup players with their name and hand list.
     // for(int i = 0; i < numPlayers; i++){
             //~~call method to create new hand from tile bag - draw 6 tiles and remove them from tileBag LinkedList.~~
             // LinkedList* playerHand = new PlayerHand(TileBag)
@@ -30,7 +27,7 @@ game::game(){
 }
 
 void game::setupTileBag(){
-    //fill tilebag with all tiles.
+    //fill tilebag with all tiles. - 6 colours with 6 different shapes and 2 of each type (72 in total).
 
     //randomize the order of the tiles.
 
@@ -48,6 +45,12 @@ void game::gamePlayLoop(){
         //display player menu
         
         //take input for user
+            //place tile
+
+            //replace tile
+
+            //save and exit
+            
 
         //check win condition - if tile bag is empty and 1 player has no tiles left.
         winConditionMet = true;
