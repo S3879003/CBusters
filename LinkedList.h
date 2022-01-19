@@ -10,9 +10,10 @@ public:
    LinkedList();
    ~LinkedList();
 
-   void addFront(int n);
-   void removeFront();
-   void addEnd(int n);
+   void placeTileFront(int t);
+   void replaceTile(Tile t);
+   int getLength();
+   void placeTileEnd(int t);
    void removeEnd();
 
 private:
