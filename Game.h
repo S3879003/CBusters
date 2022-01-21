@@ -1,11 +1,14 @@
 #include "Node.h"
 #include "LinkedList.h"
 #include <vector>
+#define BOARD_SIZE 26
+#define NUM_PLAYERS 2
 
 class game{
 public:
     //constructor
     game();
+
     //destructor
     ~game();
 

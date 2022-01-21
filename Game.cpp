@@ -1,6 +1,11 @@
 #include "Game.h"
+#include "Node.h"
+#include "TileCodes.h"
 #include <iostream>
-#define BOARD_SIZE 26
+#include <fstream>
+#include <string>
+#include <random>
+#include <algorithm>
 
 //constructor for game object -- In future needs to take in player names from main menu.
 game::game(){
@@ -14,25 +19,66 @@ game::game(){
     setupTileBag();
 
     //setup players with their name and hand list.
-    // for(int i = 0; i < numPlayers; i++){
-            //~~call method to create new hand from tile bag - draw 6 tiles and remove them from tileBag LinkedList.~~
-            // LinkedList* playerHand = new PlayerHand(TileBag)
+    for(int i = 0; i < NUM_PLAYERS; i++){
+            // ~~call method to create new hand from tile bag - draw 6 tiles and remove them from tileBag LinkedList.~~
+            // LinkedList* playerHand = new LinkedList();
 
-            //~~initlize the player[i] with their name + hand.~~
+            // ~~initlize the player[i] with their name + hand.~~
             // playerArr[i] = new Player(playerHand, playerName)
-    // }
+    }
 
     //start gameplay loop
     gamePlayLoop();
 }
 
+//setup a randomly generated tilebag
 void game::setupTileBag(){
-    //fill tilebag with all tiles. - 6 colours with 6 different shapes and 2 of each type (72 in total).
+    //generate all tiles - 6 colours with 6 different shapes and 2 of each type (72 in total).
+    //and add them to the linkedlist
+        char colour = RED;
+        std::vector<Tile*> tempVector;
 
-    //randomize the order of the tiles.
+        for (int i = 0; i < 12; i++)
+        {
+            if (i >= 2  && i < 4)
+            {   
+                colour = ORANGE;
+            }
+            else if (i >= 4  && i < 6){
+                colour = YELLOW;
+            }
+            else if (i >= 6  && i < 8){
+                colour = GREEN;
+            }
+            else if (i >= 8  && i < 10){
+                colour = BLUE;
+            }
+            else if (i >= 10  && i < 12){
+                colour = PURPLE;
+            }            
 
+            tempVector.push_back(new Tile(colour, CIRCLE));
+            tempVector.push_back(new Tile(colour, STAR_4));
+            tempVector.push_back(new Tile(colour, DIAMOND));
+            tempVector.push_back(new Tile(colour, SQUARE));
+            tempVector.push_back(new Tile(colour, STAR_6));
+            tempVector.push_back(new Tile(colour, CLOVER));
+        }
+
+        //randomize the order of the tiles.
+        auto rng = std::default_random_engine {};
+        std::shuffle(std::begin(tempVector), std::end(tempVector), rng);
+
+        //add each tile to the linked list
+        for(int i = 0; i < (int)tempVector.size(); i++){
+            //add each tile to the end of the linkedList
+            // tileBag.placeTileEnd(tempVector[i]);
+        }
+
+    delete &tempVector;
 }
 
+//loops through gameplay until win condition is met
 void game::gamePlayLoop(){
     bool winConditionMet = false;
     bool saveConditionMet = false;
@@ -64,28 +110,41 @@ void game::gamePlayLoop(){
         }
     }
 
+    saveGame();
+
     // if won display win information.
     
 }
 
+//saves the game to file
 void game::saveGame(){
     //ask for save name
+    std::string fileName;
+    std::cout<< "please enter file name:" <<std::endl;
+    std::cin >> fileName;
+
+    std::ofstream output(fileName + ".txt");
 
     //save player turn tracker
-    std::cout << turnTracker << std::endl;
-    //save each players hand
+    // std::cout << turnTracker << std::endl;
 
+    //save each players hand
 
     //save the tilebag
 
     //save game board state.
+
+
     for (size_t row = 0; row < map.size(); row++)
     {
         for (size_t col = 0; col < map.size(); col++)
         {
-            std::cout << map[row][col];
+            if(map[row][col] == nullptr){
+                output << "  ";
+            }
+            
         }
-        std::cout << std::endl;
+        output << std::endl;
     }
 }
 
@@ -108,7 +167,7 @@ void game::displayBoard(){
     std::cout << " ";
     for (int i = 0; i < 2; i++)
     {
-        for (int j = 0; j < map.size(); j++)
+        for (size_t j = 0; j < map.size(); j++)
         {
             //display the col numbers on the first interation.
             if(i == 0){
