@@ -15,6 +15,9 @@ public:
     //adds tile to tile list
     void addTile(Tile &tile);
 
+    //Replace Tile
+    void Player::replaceTile(Tile &tile, int i);
+
     //Retrieves tileList length
     int getHandCount();
     
