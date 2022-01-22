@@ -42,25 +42,29 @@ void LinkedList::removeTile(Node* t) { //remove from list, when added to playerl
    // return 0;
 }
 
-void LinkedList::replaceTile(Node* t) {
-   // create temp node
-   Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
-   // set temp tile to input, temp next to nullptr
-   temp->tile = t->tile;
-   temp->next = nullptr;
+// Tile LinkedList::replaceTile() {
+//    // create temp node
+//    Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
+//    // set temp tile to input, temp next to nullptr
+//    temp->tile = t->tile;
+//    temp->next = nullptr;
 
-   // remove tile from hand 
-   // removeTile(t); 
+//    // remove tile from hand 
+//    // removeTile(t); 
 
-   // place tile back in bag
-   placeTileEnd(t);
+//    // place tile back in bag
+//    placeTileEnd(t);
 
-   // pickup new tile from bag --> put into hand, remove from list
+//    // pickup new tile from bag --> put into hand, remove from list
+//    // add from front of bag
+//    removeTile(t); 
 
-   removeTile(t); 
-
-   delete temp;
-}
+//    delete temp;
+   
+//    // return TILE
+// }
+// pass in the players hand (linkedList) and the tile bag, and which to remove from hand
+// pass in 
 
 void LinkedList::placeTileEnd(Node* t) {
    Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
@@ -95,23 +99,77 @@ Tile* LinkedList::getTileAtIndex(int index) {
    return current->tile;
 }
 
-// Node* LinkedList::removeFront() { 
-//    Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
-
-//    if (head == NULL) {
-//       std::cout << "List is empty" << std::endl;
+// void LinkedList::placeTileAtIndex(Node* t, int index) {
+//    int count = 0;
+//    Node* current = head;
+//    // int returnValue = 0;
+//    if(index >= 0 && index < getLength()) {
+//       while(count < index) {
+//          ++count;
+//          current = current->next;
+//       }
 //    }
-//    else if (head == tail) {
-//       x = head->data;
-//       head = NULL;
-//       tail = NULL;
-//    }
-//    else {
-//       Node<T>* temp;
-//       temp = head;
-//       x = head->data;
-//       head = head->next;
-//       delete(temp);
-//    }
-//    return x;
 // }
+
+Tile LinkedList::placeTile(Tile* tile){
+   int i = 0;
+   Tile* placedTile = nullptr;
+   //  Tile temp = new Tile(getTileAtIndex(i)->getColour(),getTileAtIndex(i)->getShape());
+   Tile* temp = getTileAtIndex(i);
+
+   //  while(tile->equals(temp) == false || i < length)
+   while(tile->colour != temp->getColour() && tile->shape != temp->getShape()) {
+    {
+        if(tile->colour != temp->getColour() && tile->shape != temp->getShape()){
+            placedTile = getTileAtIndex(i);
+            for (int x = i; x < getLength() - 1; x++)
+            {
+                setTileAtIndex(x);
+            }
+        }
+        i++;
+        temp = getTileAtIndex(i);
+    }
+    return *placedTile;
+}
+}
+
+// void LinkedList::setTileAtIndex(int index) {
+//    int count = 0;
+//    Node* current = head;
+//    Tile* returnValue;
+//    if(index >= 0 && index < getLength()) {
+//       while(count < index) {
+//          ++count;
+//          current = current->next;
+//       }
+//       returnValue = current->tile;
+//    }
+   
+// }
+
+void LinkedList::setTileAtIndex(int index){
+    if(index >= 0 && index < getLength()){
+        if(head != nullptr){
+            int counter = 0;
+            Node* current = head;
+            //pre should point to node before current;
+            Node* prev = nullptr;
+
+            while(counter != index){
+                ++counter;
+                prev = current;
+                current = current->next;
+            }
+
+            if(prev == nullptr){
+                head = current->next;
+            }else{
+                prev->next = current->next;
+            }
+
+            delete current->tile;
+            delete current;
+        }
+    }
+}
