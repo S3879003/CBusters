@@ -1,22 +1,24 @@
-#include Tile.h
+#include "Tile.h"
+
+#include <string>
 
 class Player{
 public:
 
 
-    Player(string name, int id, int score, TileList hand);
+    Player(std::string name, int id, int score, LinkedList hand);
 
     //retrieves tile at specified index
-    Tile tileAtIndex(int i);
+    Tile* tileAtIndex(int i);
     
     //Removes tile from list
-    void removeTile(Tile &tile);
+    Tile* placeTile(Tile &tile);
 
     //adds tile to tile list
     void addTile(Tile &tile);
 
     //Replace Tile
-    void Player::replaceTile(Tile &tile, int i);
+    // void Player::replaceTile(Tile &tile, int i);
 
     //Retrieves tileList length
     int getHandCount();
@@ -36,7 +38,7 @@ public:
 private:
 
 
-    string name;
+    std::string name;
     int id;
     TileList hand;
     int score;

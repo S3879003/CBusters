@@ -1,8 +1,7 @@
 #include "Player.h"
 #include <iostream>
-#include <string>
 
-Player::Player(string name, int id, int score, TileList hand): 
+Player::Player(std::string name, int id, int score, LinkedList hand): 
                                         name(name), id(id), score(score), hand(hand)
                                         {}
 
@@ -21,27 +20,35 @@ int Player::getHandCount(){
 void Player::addTile(Tile &tile){
     hand.add(&tile);
 }
-void Player::removeTile(Tile &tile){
-    for (int i = 0; i < hand.length(); i++)
+Tile* Player::placeTile(Tile &tile){
+    int i;
+    Tile* placedTile = nullptr;
+    while(tile.equals(hand[i]) == false || i < hand.getLength())
     {
         if(tile.equals(hand[i])){
-            for (int x = i; x < hand.length() - 1; x++)
+            placedTile = hand[i];
+            for (int x = i; x < hand.getLength() - 1; x++)
             {
                 hand[x] = hand[x+1];
             }
-            break;
+            
         }
+        i++;
     }
-    
+    return placedTile;
 }
-void Player::replaceTile(Tile &tile, int i){
-    if(i >= 0 && i < Player::getHandCount()){
-        hand[i] = tile;
-    }
+// void Player::replaceTile(Tile &tile, LinkedList tilebag){
+//     int i;
+//     Tile* removeTile = nullptr;
+//     while(!tile.equals(hand[i]) || i < hand.length()){
 
-}
-Tile Player::tileAtIndex(int i){
-     if(i >= 0 && i < Player::getHandCount()) return hand[i];
+//         i++;
+//     }
+
+// }
+Tile* Player::tileAtIndex(int i){
+    Tile* tile = nullptr;
+     if(i >= 0 && i < Player::getHandCount()) tile = hand[i];
    
-    return nullptr;
+    return tile;
 }
