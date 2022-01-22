@@ -10,11 +10,13 @@ public:
    LinkedList();
    ~LinkedList();
 
-   void placeTileFront(int t);
-   void replaceTile(Tile t);
+   void addTile(Node* t);
+   void removeTile(Node* t);
+   void replaceTile(Node* t); //swapping tile in hand from bag
    int getLength();
-   void placeTileEnd(int t);
-   void removeEnd();
+   void placeTileEnd(Node* t);
+   Tile* getTileAtIndex(int index);
+   Node* removeFront(); 
 
 private:
    Node* head;

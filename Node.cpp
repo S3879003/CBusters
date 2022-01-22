@@ -3,7 +3,8 @@
 
 Node::Node(Tile* tile, Node* next)
 {
-   // TODO 
+   tile = nullptr;
+   next = nullptr; 
 }
 
 Node::Node(Node& other)

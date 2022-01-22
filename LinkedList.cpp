@@ -1,22 +1,11 @@
 
 #include "LinkedList.h"
 #include <iostream>
-
-class Node {
-    public:
-    int tile;
-    Node* next;
-    // node* previous;
-
-    Node() {
-        tile = 0;
-        next = NULL;
-    };
-};
+#include <limits>
 
 LinkedList::LinkedList() {
-   head = NULL;
-   tail = NULL;
+   head = nullptr;
+   tail = nullptr;
    length = 0;
 }
 
@@ -30,12 +19,14 @@ int LinkedList::getLength() {
    return length;
 }
 
-void LinkedList::placeTileFront(int t) {
-   Node* temp = new Node(); // on the heap (to be deleted)
-   temp->tile = t;
-   temp->next = NULL;
+void LinkedList::removeTile(Node* t) { //remove from list, when added to playerlist
+   // 1. select tile
+   Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
+   // 2. set tile as temp
+   temp->tile = t->tile;
+   temp->next = nullptr;
    
-   if (head == NULL) {
+   if (head == nullptr) {
       head = temp;
       tail = temp;
    }
@@ -45,18 +36,38 @@ void LinkedList::placeTileFront(int t) {
    }
    length++;
    delete temp;
+
+   // 3. remove tile from list
+   // 4. return tile info.
+   // return 0;
 }
 
-void LinkedList::replaceTile(Tile t) {
-   
+void LinkedList::replaceTile(Node* t) {
+   // create temp node
+   Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
+   // set temp tile to input, temp next to nullptr
+   temp->tile = t->tile;
+   temp->next = nullptr;
+
+   // remove tile from hand 
+   // removeTile(t); 
+
+   // place tile back in bag
+   placeTileEnd(t);
+
+   // pickup new tile from bag --> put into hand, remove from list
+
+   removeTile(t); 
+
+   delete temp;
 }
 
-void LinkedList::placeTileEnd(int t) {
-   Node* temp = new Node(); // on the heap (to be deleted)
-   temp->tile = t;
-   temp->next = NULL;
+void LinkedList::placeTileEnd(Node* t) {
+   Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
+   temp->tile = t->tile;
+   temp->next = nullptr;
    
-   if (head == NULL) {
+   if (head == nullptr) {
       head = temp;
       tail = temp;
    }
@@ -67,3 +78,40 @@ void LinkedList::placeTileEnd(int t) {
    length++;
    delete temp;
 }
+
+Tile* LinkedList::getTileAtIndex(int index) {
+   int count = 0;
+   Node* current = head;
+   // int returnValue = 0;
+   Tile* returnValue;
+   if(index >= 0 && index < getLength()) {
+      while(count < index) {
+         ++count;
+         current = current->next;
+      }
+      returnValue = current->tile;
+   }
+
+   return current->tile;
+}
+
+// Node* LinkedList::removeFront() { 
+//    Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
+
+//    if (head == NULL) {
+//       std::cout << "List is empty" << std::endl;
+//    }
+//    else if (head == tail) {
+//       x = head->data;
+//       head = NULL;
+//       tail = NULL;
+//    }
+//    else {
+//       Node<T>* temp;
+//       temp = head;
+//       x = head->data;
+//       head = head->next;
+//       delete(temp);
+//    }
+//    return x;
+// }
