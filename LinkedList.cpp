@@ -66,10 +66,10 @@ void LinkedList::removeTile(Node* t) { //remove from list, when added to playerl
 // pass in the players hand (linkedList) and the tile bag, and which to remove from hand
 // pass in 
 
-void LinkedList::placeTileEnd(Node* t) {
-   Node* temp = new Node(t->tile, t->next); // on the heap (to be deleted)
-   temp->tile = t->tile;
-   temp->next = nullptr;
+void LinkedList::placeTileEnd(Tile* t) {
+   Node* temp = new Node(new Tile(t->getColour(), t->getShape()), nullptr); // on the heap (to be deleted)
+   // temp->tile = t->tile;
+   // temp->next = nullptr;
    
    if (head == nullptr) {
       head = temp;
@@ -111,7 +111,7 @@ Tile* LinkedList::getTileAtIndex(int index) {
 //    }
 // }
 
-Tile LinkedList::placeTile(Tile* tile){
+Tile LinkedList::placeTile(Tile* tile){ //removes tile from list to go onto board
    int i = 0;
    Tile* placedTile = nullptr;
    //  Tile temp = new Tile(getTileAtIndex(i)->getColour(),getTileAtIndex(i)->getShape());
