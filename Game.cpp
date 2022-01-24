@@ -78,8 +78,9 @@ void game::gamePlayLoop(){
     bool winConditionMet = false;
     bool saveConditionMet = false;
     turnTracker = 0;
+
     //gameplay loop
-    while (!winConditionMet || saveConditionMet == true)
+    while (winConditionMet == false || saveConditionMet == false)
     {
         //display the game board
         displayBoard();
@@ -93,7 +94,7 @@ void game::gamePlayLoop(){
             std::cout << playerArr[turnTracker]->getTileAtIndex(i)->getColour() << playerArr[turnTracker]->getTileAtIndex(i)->getShape() << " ";
         }
         std::cout << std::endl;
-        
+
         //take input for user selection
         std::cout << "Awaiting user input: " << std::endl;
         std::string menuInput;
@@ -132,7 +133,7 @@ void game::gamePlayLoop(){
         //replace tile
         else if (menuInput == "replace")
         {
-
+            //TODO
         }
         //save and exit
         else if (menuInput == "exit"){
