@@ -344,7 +344,7 @@ main(){
 
     std::cin.ignore();
 
-    game* newGame = new game("test.txt");
+    game* newGame = new game(playerNames);
     
 }
 
