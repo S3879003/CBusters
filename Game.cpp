@@ -12,19 +12,16 @@ game::game(){
     //setup a new game empty board.
     setupGameboard();
 
-    //display the game board
-    displayBoard();
-
     //initilize tile bag - randomly sort the bag.
     setupTileBag();
 
     //setup players with their name and hand list.
     for(int i = 0; i < NUM_PLAYERS; i++){
-            // ~~call method to create new hand from tile bag - draw 6 tiles and remove them from tileBag LinkedList.~~
-            // LinkedList* playerHand = new LinkedList();
-
-            // ~~initlize the player[i] with their name + hand.~~
-            // playerArr[i] = new Player(playerHand, playerName)
+        // ~~initlize the player[i] with their hand.~~
+        playerArr[i] = new LinkedList();
+        for(int x = 0; x < 6; x++){
+            playerArr[i]->placeTileEnd(tileBag.remove_front());
+        }
     }
 
     //start gameplay loop
@@ -35,82 +32,125 @@ game::game(){
 void game::setupTileBag(){
     //generate all tiles - 6 colours with 6 different shapes and 2 of each type (72 in total).
     //and add them to the linkedlist
-        char colour = RED;
-        std::vector<Tile*> tempVector;
+    char colour = RED;
+    std::vector<Tile*> tempVector;
 
-        for (int i = 0; i < 12; i++)
-        {
-            if (i >= 2  && i < 4)
-            {   
-                colour = ORANGE;
-            }
-            else if (i >= 4  && i < 6){
-                colour = YELLOW;
-            }
-            else if (i >= 6  && i < 8){
-                colour = GREEN;
-            }
-            else if (i >= 8  && i < 10){
-                colour = BLUE;
-            }
-            else if (i >= 10  && i < 12){
-                colour = PURPLE;
-            }            
-
-            tempVector.push_back(new Tile(colour, CIRCLE));
-            tempVector.push_back(new Tile(colour, STAR_4));
-            tempVector.push_back(new Tile(colour, DIAMOND));
-            tempVector.push_back(new Tile(colour, SQUARE));
-            tempVector.push_back(new Tile(colour, STAR_6));
-            tempVector.push_back(new Tile(colour, CLOVER));
+    for (int i = 0; i < 12; i++)
+    {
+        if (i >= 2  && i < 4)
+        {   
+            colour = ORANGE;
         }
-
-        //randomize the order of the tiles.
-        auto rng = std::default_random_engine {};
-        std::shuffle(std::begin(tempVector), std::end(tempVector), rng);
-
-        //add each tile to the linked list
-        for(int i = 0; i < (int)tempVector.size(); i++){
-            //add each tile to the end of the linkedList
-            // tileBag.placeTileEnd(tempVector[i]);
+        else if (i >= 4  && i < 6){
+            colour = YELLOW;
         }
+        else if (i >= 6  && i < 8){
+            colour = GREEN;
+        }
+        else if (i >= 8  && i < 10){
+            colour = BLUE;
+        }
+        else if (i >= 10  && i < 12){
+            colour = PURPLE;
+        }            
 
-    delete &tempVector;
+        tempVector.push_back(new Tile(colour, CIRCLE));
+        tempVector.push_back(new Tile(colour, STAR_4));
+        tempVector.push_back(new Tile(colour, DIAMOND));
+        tempVector.push_back(new Tile(colour, SQUARE));
+        tempVector.push_back(new Tile(colour, STAR_6));
+        tempVector.push_back(new Tile(colour, CLOVER));
+    }
+
+    //randomize the order of the tiles.
+    auto rng = std::default_random_engine {};
+    std::shuffle(std::begin(tempVector), std::end(tempVector), rng);
+
+    //add each tile to the linked list
+    for(int i = 0; i < (int)tempVector.size(); ++i){
+        //add each tile to the end of the linkedList
+        tileBag.placeTileEnd(tempVector[i]);
+    }
 }
 
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
     bool winConditionMet = false;
     bool saveConditionMet = false;
-    turnTracker = 1;
+    turnTracker = 0;
     //gameplay loop
-    while (!winConditionMet || saveConditionMet)
+    while (!winConditionMet || saveConditionMet == true)
     {
+        //display the game board
+        displayBoard();
+
+        //display player turn details
+        std::cout << "Player " << turnTracker+1 << "'s Hand:" << std::endl;
+        std::cout << playerArr[turnTracker]->getLength() << std::endl;
+        
         //display Players hand
+        for(int i = 0; i < playerArr[turnTracker]->getLength(); i++){
+            std::cout << playerArr[turnTracker]->getTileAtIndex(i)->getColour() << playerArr[turnTracker]->getTileAtIndex(i)->getShape() << " ";
+        }
+        std::cout << std::endl;
         
-        //display player menu
+        //take input for user selection
+        std::cout << "Awaiting user input: " << std::endl;
+        std::string menuInput;
+        std::cin >> menuInput;
+
+        //place tile
+        if(menuInput == "place")
+        {
+            //take in the colour and shape variables
+            char colour;
+            int shape;
+            std::cin >> colour;
+            std::cin >> shape;
+
+            //create a temp tile and call function that removes the tile from player hand
+            Tile* temp = playerArr[turnTracker]->placeTile(new Tile(colour, shape));
+
+            //Eat the word "at".
+            std::cin >> menuInput;
         
-        //take input for user
-            //place tile
+            //take in the row and col values
+            char row;
+            int col;
+            std::cin >> row;
+            std::cin >> col;
 
-            //replace tile
+            //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
+            map[int(row)-65][col] = temp;
 
-            //save and exit
-            
+            //add new tile to the end of players hand and remove tile from top of the tile bag.
+            playerArr[turnTracker]->placeTileEnd(tileBag.remove_front());
 
-        //check win condition - if tile bag is empty and 1 player has no tiles left.
-        winConditionMet = true;
+            //ignore the leftover text in the input stream.
+            std::cin.ignore();
+        }
+        //replace tile
+        else if (menuInput == "replace")
+        {
+
+        }
+        //save and exit
+        else if (menuInput == "exit"){
+            saveGame();
+            saveConditionMet = true;
+            winConditionMet = true;
+        }
 
         //change to next players turn
-        if(turnTracker == 1){
-            turnTracker = 2;
+        if(turnTracker == 0){
+            turnTracker = 1;
         }
         else {
-            turnTracker = 1;
+            turnTracker = 0;
         }
     }
 
-    saveGame();
+
 
     // if won display win information.
     
@@ -142,6 +182,9 @@ void game::saveGame(){
             if(map[row][col] == nullptr){
                 output << "  ";
             }
+            else{
+                output << map[row][col]->colour << map[row][col]->shape;
+            }
             
         }
         output << std::endl;
@@ -152,10 +195,10 @@ void game::saveGame(){
 void game::setupGameboard(){
     for (int row = 0; row < BOARD_SIZE; row++)
     {
-        std::vector<Node*> temp;
+        std::vector<Tile*> temp;
         for (int col = 0; col < BOARD_SIZE; col++)
         {
-            Node* tempNode = nullptr;
+            Tile* tempNode = nullptr;
             temp.push_back(tempNode);
         }
         map.push_back(temp);
@@ -204,7 +247,7 @@ void game::displayBoard(){
                     std::cout << "  ";
                 } else{
                     //~~~~need to implement displaying of tile color and shape.~~~~
-                    std::cout << map[row][col];
+                    std::cout << map[row][col]->colour << map[row][col]->shape;
                 }
                 std::cout << "|";            
         }
@@ -217,3 +260,4 @@ main(){
     game* newGame = new game();
     
 }
+

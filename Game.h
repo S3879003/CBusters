@@ -29,12 +29,12 @@ public:
 
 private:
     //LinkedList holding all tiles.
-    LinkedList* tileBag;
+    LinkedList tileBag;
 
     //array of the the players.
-    //player* playerArr[numPlayers];
+    LinkedList* playerArr[NUM_PLAYERS];
 
     int turnTracker;
 
-    std::vector<std::vector<Node*>> map;
+    std::vector<std::vector<Tile*>> map;
 };
