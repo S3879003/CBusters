@@ -13,7 +13,7 @@ public:
    void removeTile(Node* t);
    Tile* remove_front();
    int getLength();
-   void placeTileEnd(Tile* t);
+   void addTileEnd(Tile* t);
    Tile* getTileAtIndex(int index);
    // void placeTileAtIndex(Node* t, int index);
    Tile* placeTile(Tile* tile);

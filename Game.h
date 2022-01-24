@@ -1,13 +1,17 @@
 #include "Node.h"
 #include "LinkedList.h"
 #include <vector>
+#include "Player.h"
 #define BOARD_SIZE 26
 #define NUM_PLAYERS 2
 
 class game{
 public:
     //constructor
-    game();
+    game(std::string playerNames[]);
+
+    //load game constructor
+    game(std::string fileName);
 
     //destructor
     ~game();
@@ -32,7 +36,7 @@ private:
     LinkedList tileBag;
 
     //array of the the players.
-    LinkedList* playerArr[NUM_PLAYERS];
+    Player* playerArr[NUM_PLAYERS];
 
     int turnTracker;
 
