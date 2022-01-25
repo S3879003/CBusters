@@ -1,54 +1,63 @@
 #include "Player.h"
 #include <iostream>
 
-Player::Player(std::string name, int id, int score, LinkedList hand): 
+//player constructor
+Player::Player(std::string name, int id, int score, LinkedList* hand): 
                                         name(name), id(id), score(score), hand(hand)
                                         {}
 
+//returns players score
 int Player::getScore(){
     return score;
 }
+
+//sets players score
 void Player::setScore(int score){
     Player::score = score;
 }
+
+
+//updates players score
 void Player::updateScore(int score){
     Player::score += score;
 }
+
+//returns the players hand list
+LinkedList* Player::getHand(){
+    return hand;
+}
+
+//returns players name
+std::string Player::getPlayerName(){
+    return name;
+}
+
+void Player::setPlayerName(std::string n){
+    this->name = name;
+}
+
+//gets the length of the players hand
 int Player::getHandCount(){
-    return hand.getLength();
+    return hand->getLength();
 }
-void Player::addTile(Tile &tile){
-    hand.add(&tile);
-}
-Tile* Player::placeTile(Tile &tile){
-    int i;
-    Tile* placedTile = nullptr;
-    while(tile.equals(hand[i]) == false || i < hand.getLength())
-    {
-        if(tile.equals(hand[i])){
-            placedTile = hand[i];
-            for (int x = i; x < hand.getLength() - 1; x++)
-            {
-                hand[x] = hand[x+1];
-            }
-            
-        }
-        i++;
-    }
-    return placedTile;
-}
-// void Player::replaceTile(Tile &tile, LinkedList tilebag){
-//     int i;
-//     Tile* removeTile = nullptr;
-//     while(!tile.equals(hand[i]) || i < hand.length()){
 
-//         i++;
-//     }
+//adds a tile to back of the players hand
+void Player::addTile(Tile* tile){
+    hand->addTileEnd(tile);
+}
 
-// }
-Tile* Player::tileAtIndex(int i){
-    Tile* tile = nullptr;
-     if(i >= 0 && i < Player::getHandCount()) tile = hand[i];
+int Player::getID(){
+    return id;
+}
+
+void Player::setID(int id){
+    this->id = id;
+}
+
+// Tile* Player::tileAtIndex(int i){
+//      if(i >= 0 && i < Player::getHandCount()){
+//         return hand.;
+//      } 
    
-    return tile;
-}
+//     return nullptr;
+// }

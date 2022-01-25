@@ -1,12 +1,12 @@
 #include "Tile.h"
-
 #include <string>
+#include "LinkedList.h"
+
 
 class Player{
 public:
 
-
-    Player(std::string name, int id, int score, LinkedList hand);
+    Player(std::string name, int id, int score, LinkedList* hand);
 
     //retrieves tile at specified index
     Tile* tileAtIndex(int i);
@@ -15,7 +15,7 @@ public:
     Tile* placeTile(Tile &tile);
 
     //adds tile to tile list
-    void addTile(Tile &tile);
+    void addTile(Tile* tile);
 
     //Replace Tile
     // void Player::replaceTile(Tile &tile, int i);
@@ -33,15 +33,27 @@ public:
     int getScore();
     
     //Gets player ID
-    void getID();
+    int getID();
+    
+    //sets player ID
+    void setID(int id);
+
+    //gets player name
+    std::string getPlayerName();
+
+    //sets player name
+    void setPlayerName(std::string name);
+
+    //Gets Players Hand
+    LinkedList* getHand();
 
 private:
 
 
     std::string name;
     int id;
-    TileList hand;
+    LinkedList* hand;
     int score;
 
 
-}
+};

@@ -1,7 +1,15 @@
 
 #include "Tile.h"
+#include "TileCodes.h"
 
-Tile::Tile(Colour colour, Shape shape): colour(colour), shape(shape){}
+Tile::Tile(Colour colour, Shape shape){
+    this->colour = colour;
+    this->shape = shape;
+}
+
+Tile::Tile(Tile& other){
+
+}
 
 Colour Tile::getColour(){
     return colour;
