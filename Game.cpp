@@ -6,10 +6,12 @@
 #include <string>
 #include <random>
 #include <algorithm>
+#include <sstream>
 
 //constructor for game object -- In future needs to take in player names from main menu.
 game::game(std::string playerNames[]){
     //setup a new game empty board.
+    setBoardSize(26);
     setupGameboard();
 
     //initilize tile bag - randomly sort the bag.
@@ -34,64 +36,88 @@ game::game(std::string playerNames[]){
 game::game(std::string fileName){
     std::ifstream saveFile(fileName);
 
+
+    
     //load each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
 
         int id;
-        std::cin >> id;
-        playerArr[i]->setID(id);
+        saveFile >> id;
+        saveFile.ignore();
 
         std::string name;
-        std::cin >> name;
-        playerArr[i]->setPlayerName(name);
+        std::getline(saveFile, name);
 
-        int score; 
-        std::cin >> score;
-        playerArr[i]->setScore(score);
+        int score;
+        saveFile >> score;
+
+        LinkedList* playersHand = new LinkedList;
 
         for(int j = 0; j < 6; j++){
             char colour;
+            saveFile >> colour;
             int shape;
-            std::cin >> colour;
-            std::cin >> shape;
-            
-            playerArr[i]->getHand()->addTileEnd(new Tile(colour, shape));
+            saveFile >> shape;
+            saveFile.ignore();
+            playersHand->addTileEnd(new Tile(colour, shape));
         }
-    }    
-    //load the tilebag
-    int tileBagLength;
-    std::cin >> tileBagLength;
+        playerArr[i] = new Player(name, id, score, playersHand);
+    }
 
-    for(int i = 0; i < tileBagLength; i++){
-            char colour;
-            int shape;
-            std::cin >> colour;
-            std::cin >> shape;
-            
-            tileBag.addTileEnd(new Tile(colour, shape));
+    // load the tilebag
+    std::string tileBagContents;
+    saveFile >> tileBagContents;
+    char delimiter = ',';
+    std::vector<std::string> tiles;
+    std::string tile;
+
+    std::stringstream sstream(tileBagContents);
+    while(std::getline(sstream, tile, delimiter)){
+        tiles.push_back(tile);
+    }
+
+    for(int i = 0; i < (int)tiles.size(); i++){
+        std::string temp = tiles[i];
+        char colour = temp[0];
+        int shape = temp[1];
+        tileBag.addTileEnd(new Tile(colour, shape));
     }
 
     //load the turn tracker
-    std::cin >> turnTracker;
+    saveFile >> turnTracker;
+    saveFile.ignore();
+
+    // //load game size
+    // std::string currentBoardSize;
+    // saveFile >> currentBoardSize;
+    // std::cout << "a" << currentBoardSize << std::endl;
+    // saveFile.ignore();
 
     //load the game board state
-    //save game board state.
-    for (size_t row = 0; row < BOARD_SIZE; row++)
-    {
-        for (size_t col = 0; col < BOARD_SIZE; col++)
-        {
-            std::string temp;
-            std::cin >> temp;
-            
-            if(temp == "XX"){
-                map[row][col] = nullptr;
-            }
-            else{
-                map[row][col] = new Tile(temp[0], temp[1]);
-            }
-        }
-    }
+    setupGameboard();
+    int i = 0;
+    std::string boardState;
+    std::getline(saveFile, boardState);
+    std::cout << boardState << std::endl;
 
+    while(i < boardState.length()){
+        char colour = boardState[i];
+        int shape = boardState[i+1] - 48;
+        char row = boardState[i+3];
+        int col = boardState[i+4]- 48;
+        if (boardState[i+5 != ',']){
+            std::string sBase = std::to_string(boardState[i+4] - 48);
+            std::string sAppend = std::to_string(boardState[i+5] - 48);
+            std::string result = sBase + sAppend;
+            col = std::stoi(result);
+        }
+        std::cout << row << col << std::endl;
+        Tile* temp = new Tile(colour, shape);
+        map[int(row)-65][col] = temp;
+        i+=7;
+    }
+    displayBoard();
+    gamePlayLoop();
 }
 
 //setup a randomly generated tilebag
@@ -236,37 +262,37 @@ void game::saveGame(){
         for(int j = 0; j < playerArr[i]->getHand()->getLength(); j++){
             output << playerArr[i]->getHand()->getTileAtIndex(j)->getColour() 
                         << playerArr[i]->getHand()->getTileAtIndex(j)->getShape() 
-                        << " ";
+                        << ",";
         }
-        std::cout << std::endl;
+        output << std::endl;
     }
-
     //save the tilebag
     for(int i = 0; i <= tileBag.getLength(); i++){
         output << tileBag.getTileAtIndex(i)->getColour()
                   << tileBag.getTileAtIndex(i)->getShape()
-                  << " ";
+                  << ",";
     }
-    std::cout << std::endl;
+    output << std::endl;
 
     //save turn tracker
     output << turnTracker << std::endl;
+    char rowSymbol = 'A';
 
     //save game board state.
     for (size_t row = 0; row < map.size(); row++)
     {
+        std::cout << row << std::endl;
         for (size_t col = 0; col < map.size(); col++)
         {
-            if(map[row][col] == nullptr){
-                output << "XX";
-            }
-            else{
-                output << map[row][col]->colour << map[row][col]->shape;
-            }
             
+            if(map[row][col] != nullptr){
+                std::cout << col << std::endl;
+                output << map[row][col]->colour << map[row][col]->shape << "@" << rowSymbol << col << ", ";
+            }            
         }
-        output << std::endl;
+        rowSymbol++;
     }
+    output << std::endl;
 }
 
 //setup an empty game board.
@@ -281,6 +307,10 @@ void game::setupGameboard(){
         }
         map.push_back(temp);
     }
+}
+
+void game::setBoardSize(int size){
+    this->boardSize = size;
 }
 
 //display game board
@@ -335,16 +365,16 @@ void game::displayBoard(){
 
 // for in file testing only
 main(){
+    // std::string playerNames[2];
+    // std::cout << "Player 1 Name: " << std::endl;
+    // std::cin >> playerNames[0];
+    // std::cout << "Player 2 Name: " << std::endl;
+    // std::cin >> playerNames[1];
 
-    std::string playerNames[2];
-    std::cout << "Player 1 Name: " << std::endl;
-    std::cin >> playerNames[0];
-    std::cout << "Player 2 Name: " << std::endl;
-    std::cin >> playerNames[1];
+    // std::cin.ignore();
 
-    std::cin.ignore();
-
-    game* newGame = new game(playerNames);
+    // game* newGame = new game(playerNames);
+    game* newGame = new game("test.txt");
     
 }
 

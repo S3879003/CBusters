@@ -2,8 +2,8 @@
 #include "LinkedList.h"
 #include <vector>
 #include "Player.h"
-#define BOARD_SIZE 26
 #define NUM_PLAYERS 2
+#define BOARD_SIZE 26
 
 class game{
 public:
@@ -31,6 +31,9 @@ public:
     //start gameplay loop.
     void gamePlayLoop();
 
+    void setBoardSize(int size);
+
+
 private:
     //LinkedList holding all tiles.
     LinkedList tileBag;
@@ -39,6 +42,8 @@ private:
     Player* playerArr[NUM_PLAYERS];
 
     int turnTracker;
+
+    int boardSize;
 
     std::vector<std::vector<Tile*>> map;
 };
