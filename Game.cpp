@@ -13,7 +13,7 @@ game::game(std::string playerNames[]){
     //setup a new game empty board.
     setBoardSize(26);
     setupGameboard();
-
+    
     //initilize tile bag - randomly sort the bag.
     setupTileBag();
 
@@ -28,7 +28,9 @@ game::game(std::string playerNames[]){
         }
     }
 
+
     //start gameplay loop
+    turnTracker = 0;
     gamePlayLoop();
 }
 
@@ -90,25 +92,23 @@ game::game(std::string fileName){
     int i = 0;
     std::string boardState;
     std::getline(saveFile, boardState);
-    std::cout << boardState << std::endl;
-
-    while(i < boardState.length()){
+    while(i <= boardState.length()-2){
         char colour = boardState[i];
         int shape = boardState[i+1] - 48;
         char row = boardState[i+3];
         int col = boardState[i+4]- 48;
-        if (boardState[i+5 != ',']){
-            std::string sBase = std::to_string(boardState[i+4] - 48);
-            std::string sAppend = std::to_string(boardState[i+5] - 48);
-            std::string result = sBase + sAppend;
-            col = std::stoi(result);
+
+        if (boardState[i+5] != ','){
+            std::cout << "another one" << std::endl;
+            std::string twoNumbers = std::to_string(boardState[i+4]-48) + std::to_string(boardState[i+5]-48);
+            col = std::stoi(twoNumbers);
+            i++;
         }
-        std::cout << row << col << std::endl;
+
         Tile* temp = new Tile(colour, shape);
         map[int(row)-65][col] = temp;
         i+=7;
     }
-    displayBoard();
     gamePlayLoop();
 }
 
@@ -161,7 +161,6 @@ void game::setupTileBag(){
 void game::gamePlayLoop(){
     bool winConditionMet = false;
     bool exitConditionMet = false;
-    turnTracker = 0;
 
     //gameplay loop
     while (exitConditionMet == false)
@@ -181,7 +180,7 @@ void game::gamePlayLoop(){
         }
         std::cout << std::endl;
 
-        //take input for user selection
+        //take input for users turn
         std::cout << "Awaiting user input: " << std::endl;
         std::string menuInput;
         std::cin >> menuInput;
@@ -189,7 +188,6 @@ void game::gamePlayLoop(){
         //place tile
         if(menuInput == "place")
         {
-          
             char colour;
             int shape;
 
@@ -234,8 +232,6 @@ void game::gamePlayLoop(){
 
                 std::cout << "Sorry you don't have that tile in hand, please try again!" << std::endl;
             }
-
-
         }
         //replace tile
         else if (menuInput == "replace")
@@ -249,6 +245,10 @@ void game::gamePlayLoop(){
         }
         else if (menuInput == "exit"){
             exitConditionMet = true;
+        }
+        else
+        {
+            std::cout << menuInput << " is not a valid command, please try again!" << std::endl;
         }
     }
 }
@@ -284,10 +284,12 @@ void game::saveGame(){
         }
         output << std::endl;
     }
+
     //save the tilebag
     for(int i = 0; i <= tileBag.getLength(); i++){
-        output << tileBag.getTileAtIndex(i)->getColour()
-                  << tileBag.getTileAtIndex(i)->getShape()
+
+        output << tileBag.getTileAtIndex(i)->colour
+                  << tileBag.getTileAtIndex(i)->shape - 48
                   << ",";
     }
     output << std::endl;
@@ -392,6 +394,6 @@ main(){
     // std::cin.ignore();
 
     // game* newGame = new game(playerNames);
-    game* newGame = new game("test.txt");
+    game* newGame = new game("save1.txt");
 }
 
