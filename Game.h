@@ -33,6 +33,8 @@ public:
 
     void setBoardSize(int size);
 
+    void changePlayerTurn();
+
 
 private:
     //LinkedList holding all tiles.

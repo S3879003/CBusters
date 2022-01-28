@@ -35,8 +35,6 @@ game::game(std::string playerNames[]){
 //load game constructor
 game::game(std::string fileName){
     std::ifstream saveFile(fileName);
-
-
     
     //load each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
@@ -86,12 +84,6 @@ game::game(std::string fileName){
     //load the turn tracker
     saveFile >> turnTracker;
     saveFile.ignore();
-
-    // //load game size
-    // std::string currentBoardSize;
-    // saveFile >> currentBoardSize;
-    // std::cout << "a" << currentBoardSize << std::endl;
-    // saveFile.ignore();
 
     //load the game board state
     setupGameboard();
@@ -168,11 +160,11 @@ void game::setupTileBag(){
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
     bool winConditionMet = false;
-    bool saveConditionMet = false;
+    bool exitConditionMet = false;
     turnTracker = 0;
 
     //gameplay loop
-    while (saveConditionMet == false)
+    while (exitConditionMet == false)
     {
         //display the game board
         displayBoard();
@@ -197,60 +189,86 @@ void game::gamePlayLoop(){
         //place tile
         if(menuInput == "place")
         {
-            //take in the colour and shape variables
+          
             char colour;
             int shape;
+
+            //take in the colour
+            std::cout << "> ";
             std::cin >> colour;
+            std::cout << std::endl;
+            
+            //take in the shape
+            std:: cout << "> ";
             std::cin >> shape;
+            std::cout << std::endl;
 
             //create a temp tile and call function that removes the tile from player hand
             Tile* temp = playerArr[turnTracker]->getHand()->placeTile(new Tile(colour, shape));
 
-            //Eat the word "at".
-            std::cin >> menuInput;
-        
-            //take in the row and col values
-            char row;
-            int col;
-            std::cin >> row;
-            std::cin >> col;
+            //check if exists in player hand
+            if (temp != nullptr){
+                //Eat the word "at".
+                std::cin >> menuInput;
+            
+                //take in the row and col values
+                char row;
+                int col;
+                std::cin >> row;
+                std::cin >> col;
 
-            //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
-            map[int(row)-65][col] = temp;
+                //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
+                map[int(row)-65][col] = temp;
 
-            //add new tile to the end of players hand and remove tile from top of the tile bag.
-            playerArr[turnTracker]->getHand()->addTileEnd(tileBag.remove_front());
+                //add new tile to the end of players hand and remove tile from top of the tile bag.
+                playerArr[turnTracker]->getHand()->addTileEnd(tileBag.remove_front());
 
-            //ignore the leftover text in the input stream.
-            std::cin.ignore();
+                //ignore the leftover text in the input stream.
+                std::cin.ignore();
+                changePlayerTurn();
+            
+            } else{
+                //ignore the rest of the input
+                std::string ignore;
+                std::getline(std::cin, ignore);
+
+                std::cout << "Sorry you don't have that tile in hand, please try again!" << std::endl;
+            }
+
+
         }
         //replace tile
         else if (menuInput == "replace")
         {
             //TODO
+            changePlayerTurn();
         }
-        //save and exit
-        else if (menuInput == "exit"){
+        //save game
+        else if (menuInput == "save"){
             saveGame();
-            saveConditionMet = true;
         }
+        else if (menuInput == "exit"){
+            exitConditionMet = true;
+        }
+    }
+}
 
-        //change to next players turn
-        if(turnTracker == 0){
-            turnTracker = 1;
-        }
-        else {
-            turnTracker = 0;
-        }
+void game::changePlayerTurn(){
+    //change to next players turn
+    if(turnTracker == 0){
+        turnTracker = 1;
+    }
+    else {
+        turnTracker = 0;
     }
 }
 
 //saves the game to file
 void game::saveGame(){
     //ask for save name
-    std::string fileName = "test";
-    // std::cout<< "please enter file name:" <<std::endl;
-    // std::cin >> fileName;
+    std::string fileName;
+    std::cout<< "please enter file name:" <<std::endl;
+    std::cin >> fileName;
 
     std::ofstream output(fileName + ".txt");
 
@@ -375,6 +393,5 @@ main(){
 
     // game* newGame = new game(playerNames);
     game* newGame = new game("test.txt");
-    
 }
 
