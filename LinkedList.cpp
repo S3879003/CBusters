@@ -27,7 +27,6 @@ void LinkedList::addTileEnd(Tile* t) {
    Node* temp = new Node(t, nullptr); // on the heap (to be deleted)
    temp->tile = t;
    temp->next = nullptr;
-   std::cout << temp->tile->colour << temp->tile->shape << std::endl;
 
    if (head == nullptr) {
       head = temp;
@@ -74,7 +73,6 @@ Tile* LinkedList::placeTile(Tile* tile){ //removes tile from list to go onto boa
          if(i != 5){
             removeTileAtIndex(i);
          } else{
-            std::cout << "remove backl" << std::endl;
             remove_back();
          }
          breakLoop = true;
@@ -147,12 +145,10 @@ void LinkedList::removeTileAtIndex(int index){
          }
          if(prev == nullptr){
                head = current->next;
-               std::cout << "assigned new head" << std::endl;
          }else{
                prev->next = current->next;
          }
          length--;
-         std::cout << "Length: " << length << std::endl;
          delete current->tile;
          delete current;
       }

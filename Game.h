@@ -31,13 +31,25 @@ public:
     //start gameplay loop.
     void gamePlayLoop();
 
+    //sets the board size
     void setBoardSize(int size);
 
+    //changes players turn
     void changePlayerTurn();
 
-    bool withinBoard();
+    //returns players turn
+    int getPlayersTurn();
 
+    void placeTile(std::string menuInput);
 
+    //checks if row & col coordinates are valid
+    bool withinBoard(int row, int col);
+
+    bool checkHand(char colour, int shape);
+
+    bool checkPlacement(char colour, int shape, int row, int col);
+
+    bool checkLineLength(int row, int col, int i, int dirRow[], int dirCol[]);
 private:
     //LinkedList holding all tiles.
     LinkedList tileBag;
