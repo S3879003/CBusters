@@ -45,7 +45,7 @@ Tile* LinkedList::getTileAtIndex(int index) {
    int count = 0;
    Node* current = head;
    // int returnValue = 0;
-   Tile* returnValue;
+   Tile* returnValue = nullptr;
    if(index >= 0 && index < getLength()) {
       while(count < index) {
          ++count;

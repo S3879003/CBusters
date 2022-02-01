@@ -238,6 +238,33 @@ void game::gamePlayLoop(){
             //create a temp tile and call function that removes the tile from player hand
             Tile* temp = playerArr[turnTracker]->getHand()->placeTile(new Tile(colour, shape));
 
+            int score = 0;
+            for(int i = 0; i < 4; i++){
+                if(int(row)-65 + neighbourRows[i] >= 0 
+                && int(row)-65 + neighbourRows[i] <= 25 
+                && col + neighbourCols[i] >= 0 
+                && col + neighbourCols[i] <= 25
+                && map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]] != nullptr){
+                     if(map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
+                    || map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
+                        bool checkScoreValid = true;
+                        int currentRow = row + neighbourRows[i];
+                        int currentCol = col + neighbourCols[i];
+                        while(checkScoreValid){
+                            if(map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
+                            || map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
+                                score++;
+                                currentRow = row + neighbourRows[i];
+                                currentCol = col + neighbourCols[i];
+                            }else{
+                                checkScoreValid = false;
+                            }
+                        }
+                    }
+
+
+                }
+            }
             //check if exists in player hand
             if (temp != nullptr && isValid){
 
