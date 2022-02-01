@@ -42,6 +42,8 @@ public:
 
     void placeTile(std::string menuInput);
 
+    void replaceTile(std::string menuInput);
+
     //checks if row & col coordinates are valid
     bool withinBoard(int row, int col);
 
