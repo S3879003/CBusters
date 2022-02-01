@@ -35,6 +35,8 @@ public:
 
     void changePlayerTurn();
 
+    bool withinBoard();
+
 
 private:
     //LinkedList holding all tiles.

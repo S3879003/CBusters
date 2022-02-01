@@ -79,8 +79,14 @@ game::game(std::string fileName){
     for(int i = 0; i < (int)tiles.size(); i++){
         std::string temp = tiles[i];
         char colour = temp[0];
-        int shape = temp[1];
+        int shape = temp[1] - 48;
+
+        std::cout << colour << shape << std::endl;
         tileBag.addTileEnd(new Tile(colour, shape));
+    }
+
+    for(int i = 0; i < tileBag.getLength(); i++){
+        std::cout << tileBag.getTileAtIndex(i)->shape << std::endl;
     }
 
     //load the turn tracker
@@ -99,7 +105,6 @@ game::game(std::string fileName){
         int col = boardState[i+4]- 48;
 
         if (boardState[i+5] != ','){
-            std::cout << "another one" << std::endl;
             std::string twoNumbers = std::to_string(boardState[i+4]-48) + std::to_string(boardState[i+5]-48);
             col = std::stoi(twoNumbers);
             i++;
@@ -169,11 +174,10 @@ void game::gamePlayLoop(){
         displayBoard();
 
         //display player turn details
-        std::cout << playerArr[turnTracker]->getPlayerName() << "'s Hand:" << std::endl;
-        std::cout << playerArr[turnTracker]->getHand()->getLength() << std::endl;
-        
+        std::cout << playerArr[turnTracker]->getPlayerName() << "'s Hand:" << std::endl;  
+
         //display Players hand
-        for(int i = 0; i < playerArr[turnTracker]->getHand()->getLength(); i++){
+        for(int i = 0; i < 6; i++){
             std::cout << playerArr[turnTracker]->getHand()->getTileAtIndex(i)->getColour() 
                       << playerArr[turnTracker]->getHand()->getTileAtIndex(i)->getShape() 
                       << " ";
@@ -201,19 +205,41 @@ void game::gamePlayLoop(){
             std::cin >> shape;
             std::cout << std::endl;
 
+            //Eat the word "at".
+            std::cin >> menuInput;
+        
+            //take in the row and col values
+            char row;
+            int col;
+            std::cin >> row;
+            std::cin >> col;
+
+            int neighbourRows[] = {0, 1, 0, -1};
+            int neighbourCols[] = {1, 0, -1, 0};
+            
+            bool isValid = false;
+
+            //check neighbour location to see if within map.
+            for(int i = 0; i < 4; i++){
+                if(int(row)-65 + neighbourRows[i] >= 0 
+                && int(row)-65 + neighbourRows[i] <= 25 
+                && col + neighbourCols[i] >= 0 
+                && col + neighbourCols[i] <= 25
+                && map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]] != nullptr){
+
+                    if(map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
+                    || map[int(row)-65 + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
+                        isValid = true;
+                    }
+
+                }
+            }
+
             //create a temp tile and call function that removes the tile from player hand
             Tile* temp = playerArr[turnTracker]->getHand()->placeTile(new Tile(colour, shape));
 
             //check if exists in player hand
-            if (temp != nullptr){
-                //Eat the word "at".
-                std::cin >> menuInput;
-            
-                //take in the row and col values
-                char row;
-                int col;
-                std::cin >> row;
-                std::cin >> col;
+            if (temp != nullptr && isValid){
 
                 //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
                 map[int(row)-65][col] = temp;
@@ -224,7 +250,6 @@ void game::gamePlayLoop(){
                 //ignore the leftover text in the input stream.
                 std::cin.ignore();
                 changePlayerTurn();
-            
             } else{
                 //ignore the rest of the input
                 std::string ignore;
@@ -286,10 +311,9 @@ void game::saveGame(){
     }
 
     //save the tilebag
-    for(int i = 0; i <= tileBag.getLength(); i++){
-
+    for(int i = 0; i <= tileBag.getLength()-1; i++){
         output << tileBag.getTileAtIndex(i)->colour
-                  << tileBag.getTileAtIndex(i)->shape - 48
+                  << tileBag.getTileAtIndex(i)->shape
                   << ",";
     }
     output << std::endl;
@@ -301,12 +325,10 @@ void game::saveGame(){
     //save game board state.
     for (size_t row = 0; row < map.size(); row++)
     {
-        std::cout << row << std::endl;
         for (size_t col = 0; col < map.size(); col++)
         {
             
             if(map[row][col] != nullptr){
-                std::cout << col << std::endl;
                 output << map[row][col]->colour << map[row][col]->shape << "@" << rowSymbol << col << ", ";
             }            
         }

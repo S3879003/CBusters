@@ -10,13 +10,12 @@ public:
    LinkedList();
    ~LinkedList();
 
-   void removeTile(Node* t);
-   Tile* remove_front();
    int getLength();
    void addTileEnd(Tile* t);
    Tile* getTileAtIndex(int index);
-   // void placeTileAtIndex(Node* t, int index);
    Tile* placeTile(Tile* tile);
+   Tile* remove_front();
+   void remove_back();
    void removeTileAtIndex(int index);
 
 private:
