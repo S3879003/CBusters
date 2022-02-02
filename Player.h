@@ -49,8 +49,7 @@ private:
 
     std::string name;
     int id;
-    LinkedList* hand;
     int score;
-
+    LinkedList* hand;
 
 };

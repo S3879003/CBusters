@@ -3,7 +3,6 @@
 #define ASSIGN2_LINKEDLIST_H
 
 #include "Node.h"
-#include "Game.h"
 
 class LinkedList {
 public:

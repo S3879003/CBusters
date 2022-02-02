@@ -24,7 +24,6 @@ game::game(std::string playerNames[]){
         playerArr[i] = new Player(playerNames[i], i, 0, hand);
         for(int x = 0; x < 6; x++){
             playerArr[i]->getHand()->addTileEnd(tileBag.remove_front());
-            // playerArr[i]->hand->placeTileEnd;
         }
     }
 
@@ -92,7 +91,7 @@ game::game(std::string fileName){
     int i = 0;
     std::string boardState;
     std::getline(saveFile, boardState);
-    while(i <= boardState.length()-2){
+    while(i <= (int)boardState.length()-2){
         char colour = boardState[i];
         int shape = boardState[i+1] - 48;
         char row = boardState[i+3];
@@ -158,7 +157,7 @@ void game::setupTileBag(){
 
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
-    bool winConditionMet = false;
+    // bool gameEnd = false;
     bool exitConditionMet = false;
 
     //gameplay loop
@@ -167,6 +166,12 @@ void game::gamePlayLoop(){
         //display the game board
         displayBoard();
 
+        //display each players score
+        for (int i = 0; i < NUM_PLAYERS; i++)
+        {
+            std::cout << playerArr[i]->getPlayerName() << "'s Score: " << playerArr[i]->getScore() << " | ";
+        }
+        std::cout << std::endl;
         //display player turn details
         std::cout << playerArr[getPlayersTurn()]->getPlayerName() << "'s Hand:" << std::endl;  
 
@@ -194,8 +199,6 @@ void game::gamePlayLoop(){
         else if (menuInput == "replace")
         {
             //TODO
-            replaceTile(menuInput);
-            changePlayerTurn();
         }
         //save game
         else if (menuInput == "save"){
@@ -211,6 +214,10 @@ void game::gamePlayLoop(){
             std::string ignore;
             std::getline(std::cin, ignore);
         }
+
+        // if(playerArr[getPlayersTurn()]->getHandCount() == 0){
+        //     gameEnd = true;
+        // }
     }
 }
 
@@ -344,6 +351,7 @@ void game::displayBoard(){
     }
 }
 
+//places a new tile on the gameboard
 void game::placeTile(std::string menuInput){
     char colour;
     int shape;
@@ -365,14 +373,17 @@ void game::placeTile(std::string menuInput){
 
     if(checkHand(colour, shape) && withinBoard((int)row-65, col)
     && checkPlacement(colour, shape, (int)row-65, col)){
+        std::cout << "test 1" << std::endl;
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
         //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
         map[int(row)-65][col] = temp;
-
+        
         //add new tile to the end of players hand and remove tile from top of the tile bag.
-        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        if(tileBag.getLength() > 0){
+            playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        }
 
         //ignore the leftover text in the input stream.
         std::cin.ignore();
@@ -382,44 +393,11 @@ void game::placeTile(std::string menuInput){
         std::string ignore;
         std::getline(std::cin, ignore);
 
-        std::cout << "something went wrong, please try again!" << std::endl;
+        // std::cout << "something went wrong, please try again!" << std::endl;
     }
 }
 
-void game::replaceTile(std::string menuInput){
-    char colour;
-    int shape;
-
-    //take in the colour
-    std::cin >> colour;
-    
-    //take in the shape
-    std::cin >> shape;
-
-    //Eat the word "at".
-    std::cin >> menuInput;
-
-    if(checkHand(colour, shape)){
-        //create a temp tile and call function that removes the tile from player hand
-        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
-
-        //add new tile to the end of players hand and remove tile from top of the tile bag.
-        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
-
-        //add the players removed tile back to the tile bag
-        tileBag.addTileEnd(temp);
-
-        //ignore the leftover text in the input stream.
-        std::cin.ignore();
-    } else{
-        //ignore the rest of the input
-        std::string ignore;
-        std::getline(std::cin, ignore);
-
-        std::cout << "Something went wrong, please try again!" << std::endl;
-    }
-}
-
+//checks to see if a location is within gameboard
 bool game::withinBoard(int row, int col){
     //check coordinates in bound
     if(row >= 0 && row <= 25
@@ -431,6 +409,7 @@ bool game::withinBoard(int row, int col){
     
 }
 
+//checks to see if tile exists in hand
 bool game::checkHand(char colour, int shape){
     bool tileInHand = false;
     for(int i = 0; i < playerArr[getPlayersTurn()]->getHand()->getLength(); i++){
@@ -447,10 +426,10 @@ bool game::checkHand(char colour, int shape){
 
 //checks to see if the tile placement is valid
 bool game::checkPlacement(char colour, int shape, int row, int col){
-    bool isValid;
+    bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.
-    if(turnTracker != 0){
+    if(turnTracker > 0){
         //check to see if the space is empty first
         if(map[row][col] != nullptr){
             return false;
@@ -472,12 +451,10 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape)
                 {
                     std::cout << i << std::endl;
-                    if(checkLineLength(row, col, i, neighbourRows, neighbourCols)){
-                        std::cout << "working" << std::endl;
+                    if(checkLineLength(row, col, i, neighbourRows, neighbourCols, colour, shape)){
                         isValid = true;   
                     } else{
                         isValid = false;
-                        std::cout << "isValid false" << std::endl;
                     }
                 }
                 else
@@ -497,30 +474,34 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
     if(!isValid){
         std::cout << "Invalid placement location, please try again!" << std::endl;
     }
-    std::cout << "returning isValid" << std::endl;
     return isValid;    
 }
 
-//check to see if line is less than the maximum length
-bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[]){
+//checks the length of the line on the gameboard
+bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[], char colour, int shape){
     //figure out direciton we moving boys
-    int lineCount = 0;
     bool endOfLine = false;
 
+    //loop up to 6 times to check each tile in the line
     for(int x = 0; x < 6; x++){
-        if(withinBoard(row + dirRow[i], col +dirCol[i])){
-            if(map[row + dirRow[i]][col +dirCol[i]] != nullptr
-                && lineCount < 6){
-                    lineCount++;
-                    row = row + dirRow[i];
-                    col = col + dirCol[i];
-                    std::cout << "ROW: " << row << " COL: " << col << std::endl;
-                } else{
-                    //line has ended
-                    x = 6;
-                    endOfLine = true;
-                    std::cout << x << std::endl;
-                }
+        //see if the next  location is within board boundries
+        if(withinBoard(row + dirRow[i], col + dirCol[i])){
+            //check to see if each tile isn't the same colour and shape as the inputed tile.
+            if(map[row + dirRow[i]][col + dirCol[i]]->colour == colour
+            && map[row + dirRow[i]][col + dirCol[i]]->shape == shape){
+                std::cout << "Unable to place tile: duplicate tile already exists in that line" << std::endl;
+                return false;
+            }
+            //check to see if there is a tile in the next location
+            if(map[row + dirRow[i]][col + dirCol[i]] != nullptr){
+                row = row + dirRow[i];
+                col = col + dirCol[i];
+            } else{
+                //line has ended
+                x = 6;
+                endOfLine = true;
+                std::cout << x << std::endl;
+            }
         }
         else{
             return true;
@@ -528,52 +509,22 @@ bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[])
     }
     if(endOfLine == true){
         return true;
-        std::cout << "returned" << std::endl;
     }
     else{
-        std::cout << "returned" << std::endl;
         return false;
     }
-
-
-    // //for each direction keep going till nullptr or out of bounds
-    // 
-    // int count = 0;
-
-    // while(endOfLine == false){
-    //     if(map[row + dirRow][col + dirCol] != nullptr
-    //     && withinBoard(row + dirRow, col + dirCol)
-    //     && count < 6){
-    //         row = row + dirRow;
-    //         if(dirCol == -1){
-    //             col--;
-    //         }
-    //         count++;
-    //         std::cout << "COL: " << col << std::endl;
-    //     } else {
-    //         endOfLine = true;
-    //     }
-    // }
-
-    // if(count < 6){
-    //     return true;
-    // }
-    // else{
-    //     std::cout << "false return" << std::endl;
-    //     return false;
-    // }
 }
+
 // for in file testing only
-main(){
-    std::string playerNames[2];
-    std::cout << "Player 1 Name: " << std::endl;
-    std::cin >> playerNames[0];
-    std::cout << "Player 2 Name: " << std::endl;
-    std::cin >> playerNames[1];
+// main(){
+//     std::string playerNames[2];
+//     std::cout << "Player 1 Name: " << std::endl;
+//     std::cin >> playerNames[0];
+//     std::cout << "Player 2 Name: " << std::endl;
+//     std::cin >> playerNames[1];
 
-    std::cin.ignore();
+//     std::cin.ignore();
 
-    game* newGame = new game(playerNames);
-    // game* newGame = new game("save1.txt");
-}
-
+//     game* newGame = new game(playerNames);
+//     // game* newGame = new game("save1.txt");
+// }

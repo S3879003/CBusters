@@ -2,12 +2,12 @@
 
 //player constructor
 Player::Player(std::string name, int id, int score, LinkedList* hand): 
-                                        name(name), id(id), score(score), hand(hand)
+                                        name(name), id(id), score(0), hand(hand)
                                         {}
 
 //returns players score
 int Player::getScore(){
-    return score;
+    return this->score;
 }
 
 //sets players score
