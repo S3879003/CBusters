@@ -157,7 +157,7 @@ void game::setupTileBag(){
 
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
-    bool winConditionMet = false;
+    bool gameEnd = false;
     bool exitConditionMet = false;
 
     //gameplay loop
@@ -166,6 +166,12 @@ void game::gamePlayLoop(){
         //display the game board
         displayBoard();
 
+        //display each players score
+        for (int i = 0; i < NUM_PLAYERS; i++)
+        {
+            std::cout << playerArr[i]->getPlayerName() << "'s Score: " << playerArr[i]->getScore() << " | ";
+        }
+        std::cout << std::endl;
         //display player turn details
         std::cout << playerArr[getPlayersTurn()]->getPlayerName() << "'s Hand:" << std::endl;  
 
@@ -193,7 +199,6 @@ void game::gamePlayLoop(){
         else if (menuInput == "replace")
         {
             //TODO
-            changePlayerTurn();
         }
         //save game
         else if (menuInput == "save"){
@@ -208,6 +213,10 @@ void game::gamePlayLoop(){
             //ignore the rest of the input
             std::string ignore;
             std::getline(std::cin, ignore);
+        }
+
+        if(playerArr[getPlayersTurn()]->getHandCount() == 0){
+            gameEnd = true;
         }
     }
 }
@@ -371,7 +380,9 @@ void game::placeTile(std::string menuInput){
         map[int(row)-65][col] = temp;
         
         //add new tile to the end of players hand and remove tile from top of the tile bag.
-        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        if(tileBag.getLength() > 0){
+            playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        }
 
         //ignore the leftover text in the input stream.
         std::cin.ignore();
