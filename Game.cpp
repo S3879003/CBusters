@@ -30,7 +30,7 @@ game::game(std::string playerNames[]){
 
     //start gameplay loop
     turnTracker = 0;
-    gamePlayLoop();
+    // gamePlayLoop();
 }
 
 //load game constructor
@@ -373,7 +373,6 @@ void game::placeTile(std::string menuInput){
 
     if(checkHand(colour, shape) && withinBoard((int)row-65, col)
     && checkPlacement(colour, shape, (int)row-65, col)){
-        std::cout << "test 1" << std::endl;
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
@@ -429,7 +428,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
     bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.
-    if(turnTracker > 0){
+    if(turnTracker != 0){
         //check to see if the space is empty first
         if(map[row][col] != nullptr){
             return false;
@@ -444,15 +443,15 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
         //check neighbour location to see if within map.
         while(i < 4)
         {
+            // std::cout << "while loop: " << i << std::endl;
             if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])
             && map[row + neighbourRows[i]][col + neighbourCols[i]] != nullptr)
             {
                 if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape)
                 {
-                    std::cout << i << std::endl;
-                    if(checkLineLength(row, col, i, neighbourRows, neighbourCols, colour, shape)){
-                        isValid = true;   
+                    if(checkLineLength(row, col, neighbourRows[i], neighbourCols[i], colour, shape)){
+                        isValid = true;
                     } else{
                         isValid = false;
                     }
@@ -471,60 +470,69 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
             return isValid;
         }
     }
-    if(!isValid){
+    if(isValid == false){
         std::cout << "Invalid placement location, please try again!" << std::endl;
+        return false;
+    } else
+    {
+        return true;
     }
-    return isValid;    
+    // return isValid;    
 }
 
 //checks the length of the line on the gameboard
-bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[], char colour, int shape){
+bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colour, int shape){
     //figure out direciton we moving boys
     bool endOfLine = false;
 
     //loop up to 6 times to check each tile in the line
     for(int x = 0; x < 6; x++){
         //see if the next  location is within board boundries
-        if(withinBoard(row + dirRow[i], col + dirCol[i])){
+        if(withinBoard(row + dirRow, col + dirCol)
+        && map[row + dirRow][col + dirCol] != nullptr){
             //check to see if each tile isn't the same colour and shape as the inputed tile.
-            if(map[row + dirRow[i]][col + dirCol[i]]->colour == colour
-            && map[row + dirRow[i]][col + dirCol[i]]->shape == shape){
+            if(map[row + dirRow][col + dirCol]->colour == colour
+            && map[row + dirRow][col + dirCol]->shape == shape){
                 std::cout << "Unable to place tile: duplicate tile already exists in that line" << std::endl;
                 return false;
             }
             //check to see if there is a tile in the next location
-            if(map[row + dirRow[i]][col + dirCol[i]] != nullptr){
-                row = row + dirRow[i];
-                col = col + dirCol[i];
+            if(map[row + dirRow][col + dirCol] != nullptr){
+                row = row + dirRow;
+                col = col + dirCol;
             } else{
-                //line has ended
+                //line has ended, break out of loop
                 x = 6;
                 endOfLine = true;
-                std::cout << x << std::endl;
             }
         }
         else{
+            //returns true since the next place is outside of boundaries
+            //i.e there can't be over the max line length of 6.
             return true;
         }
     }
+    //returns true if the end of the line is reached.
     if(endOfLine == true){
         return true;
-    }
+    }    
     else{
+    //returns false if end of the line isn't reached. i.e line must already be 6 in length.
         return false;
     }
 }
 
 // for in file testing only
 // main(){
-//     std::string playerNames[2];
-//     std::cout << "Player 1 Name: " << std::endl;
-//     std::cin >> playerNames[0];
-//     std::cout << "Player 2 Name: " << std::endl;
-//     std::cin >> playerNames[1];
+//     // std::string playerNames[2];
+//     // std::cout << "Player 1 Name: " << std::endl;
+//     // std::cin >> playerNames[0];
+//     // std::cout << "Player 2 Name: " << std::endl;
+//     // std::cin >> playerNames[1];
 
-//     std::cin.ignore();
+//     // std::cin.ignore();
 
-//     game* newGame = new game(playerNames);
-//     // game* newGame = new game("save1.txt");
+//     // game* newGame = new game(playerNames);
+
+
 // }

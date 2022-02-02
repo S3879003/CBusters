@@ -53,7 +53,7 @@ public:
     bool checkPlacement(char colour, int shape, int row, int col);
     
     //checks the length of the line on the gameboard
-    bool checkLineLength(int row, int col, int i, int dirRow[], int dirCol[], char colour, int shape);
+    bool checkLineLength(int row, int col,  int dirRow, int dirCol, char colour, int shape);
 private:
     //LinkedList holding all game tiles not in hand/play.
     LinkedList tileBag;

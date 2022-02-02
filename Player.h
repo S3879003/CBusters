@@ -52,4 +52,6 @@ private:
     int score;
     LinkedList* hand;
 
+
+
 };
