@@ -351,6 +351,7 @@ void game::displayBoard(){
     }
 }
 
+//places a new tile on the gameboard
 void game::placeTile(std::string menuInput){
     char colour;
     int shape;
@@ -396,6 +397,7 @@ void game::placeTile(std::string menuInput){
     }
 }
 
+//checks to see if a location is within gameboard
 bool game::withinBoard(int row, int col){
     //check coordinates in bound
     if(row >= 0 && row <= 25
@@ -407,6 +409,7 @@ bool game::withinBoard(int row, int col){
     
 }
 
+//checks to see if tile exists in hand
 bool game::checkHand(char colour, int shape){
     bool tileInHand = false;
     for(int i = 0; i < playerArr[getPlayersTurn()]->getHand()->getLength(); i++){
@@ -474,7 +477,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
     return isValid;    
 }
 
-//check to see if line is less than the maximum length
+//checks the length of the line on the gameboard
 bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[]){
     //figure out direciton we moving boys
     int lineCount = 0;
@@ -506,6 +509,7 @@ bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[])
         return false;
     }
 }
+
 // for in file testing only
 main(){
     std::string playerNames[2];
@@ -519,4 +523,3 @@ main(){
     game* newGame = new game(playerNames);
     // game* newGame = new game("save1.txt");
 }
-
