@@ -1,5 +1,6 @@
 
 #include "LinkedList.h"
+#include "Game.h"
 
 #include <iostream>
 
@@ -7,6 +8,7 @@
 
 int main(void) {
    LinkedList* list = new LinkedList();
+   
 
    bool inGame = true;
    int menuSelection = 0;
@@ -30,9 +32,13 @@ int main(void) {
             std::cout << "Player 2 Name: " << std::endl;
             std::cin >> playerNames[1];
 
+            game* game = new game(playerNames);
+
             std::cin.ignore();
 
-            Game::game* newGame = new game(playerNames);
+            
+
+            game* newGame = new game(playerNames);
          break;
          case 2: // Load Game
             // TODO
