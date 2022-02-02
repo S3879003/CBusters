@@ -451,7 +451,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape)
                 {
                     std::cout << i << std::endl;
-                    if(checkLineLength(row, col, i, neighbourRows, neighbourCols)){
+                    if(checkLineLength(row, col, i, neighbourRows, neighbourCols, colour, shape)){
                         isValid = true;   
                     } else{
                         isValid = false;
@@ -478,25 +478,30 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
 }
 
 //checks the length of the line on the gameboard
-bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[]){
+bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[], char colour, int shape){
     //figure out direciton we moving boys
-    int lineCount = 0;
     bool endOfLine = false;
 
+    //loop up to 6 times to check each tile in the line
     for(int x = 0; x < 6; x++){
-        if(withinBoard(row + dirRow[i], col +dirCol[i])){
-            if(map[row + dirRow[i]][col +dirCol[i]] != nullptr
-                && lineCount < 6){
-                    lineCount++;
-                    row = row + dirRow[i];
-                    col = col + dirCol[i];
-                    std::cout << "ROW: " << row << " COL: " << col << std::endl;
-                } else{
-                    //line has ended
-                    x = 6;
-                    endOfLine = true;
-                    std::cout << x << std::endl;
-                }
+        //see if the next  location is within board boundries
+        if(withinBoard(row + dirRow[i], col + dirCol[i])){
+            //check to see if each tile isn't the same colour and shape as the inputed tile.
+            if(map[row + dirRow[i]][col + dirCol[i]]->colour == colour
+            && map[row + dirRow[i]][col + dirCol[i]]->shape == shape){
+                std::cout << "Unable to place tile: duplicate tile already exists in that line" << std::endl;
+                return false;
+            }
+            //check to see if there is a tile in the next location
+            if(map[row + dirRow[i]][col + dirCol[i]] != nullptr){
+                row = row + dirRow[i];
+                col = col + dirCol[i];
+            } else{
+                //line has ended
+                x = 6;
+                endOfLine = true;
+                std::cout << x << std::endl;
+            }
         }
         else{
             return true;
