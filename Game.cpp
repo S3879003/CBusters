@@ -24,7 +24,6 @@ game::game(std::string playerNames[]){
         playerArr[i] = new Player(playerNames[i], i, 0, hand);
         for(int x = 0; x < 6; x++){
             playerArr[i]->getHand()->addTileEnd(tileBag.remove_front());
-            // playerArr[i]->hand->placeTileEnd;
         }
     }
 
@@ -364,12 +363,13 @@ void game::placeTile(std::string menuInput){
 
     if(checkHand(colour, shape) && withinBoard((int)row-65, col)
     && checkPlacement(colour, shape, (int)row-65, col)){
+        std::cout << "test 1" << std::endl;
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
         //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
         map[int(row)-65][col] = temp;
-
+        
         //add new tile to the end of players hand and remove tile from top of the tile bag.
         playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
 
@@ -381,7 +381,7 @@ void game::placeTile(std::string menuInput){
         std::string ignore;
         std::getline(std::cin, ignore);
 
-        std::cout << "somethign went wrong, please try again!" << std::endl;
+        // std::cout << "something went wrong, please try again!" << std::endl;
     }
 }
 
@@ -412,10 +412,10 @@ bool game::checkHand(char colour, int shape){
 
 //checks to see if the tile placement is valid
 bool game::checkPlacement(char colour, int shape, int row, int col){
-    bool isValid;
+    bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.
-    if(turnTracker != 0){
+    if(turnTracker > 0){
         //check to see if the space is empty first
         if(map[row][col] != nullptr){
             return false;
@@ -438,11 +438,9 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
                 {
                     std::cout << i << std::endl;
                     if(checkLineLength(row, col, i, neighbourRows, neighbourCols)){
-                        std::cout << "working" << std::endl;
                         isValid = true;   
                     } else{
                         isValid = false;
-                        std::cout << "isValid false" << std::endl;
                     }
                 }
                 else
@@ -462,7 +460,6 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
     if(!isValid){
         std::cout << "Invalid placement location, please try again!" << std::endl;
     }
-    std::cout << "returning isValid" << std::endl;
     return isValid;    
 }
 
@@ -493,40 +490,10 @@ bool game::checkLineLength(int row, int col, int i,  int dirRow[], int dirCol[])
     }
     if(endOfLine == true){
         return true;
-        std::cout << "returned" << std::endl;
     }
     else{
-        std::cout << "returned" << std::endl;
         return false;
     }
-
-
-    // //for each direction keep going till nullptr or out of bounds
-    // 
-    // int count = 0;
-
-    // while(endOfLine == false){
-    //     if(map[row + dirRow][col + dirCol] != nullptr
-    //     && withinBoard(row + dirRow, col + dirCol)
-    //     && count < 6){
-    //         row = row + dirRow;
-    //         if(dirCol == -1){
-    //             col--;
-    //         }
-    //         count++;
-    //         std::cout << "COL: " << col << std::endl;
-    //     } else {
-    //         endOfLine = true;
-    //     }
-    // }
-
-    // if(count < 6){
-    //     return true;
-    // }
-    // else{
-    //     std::cout << "false return" << std::endl;
-    //     return false;
-    // }
 }
 // for in file testing only
 main(){
