@@ -97,7 +97,9 @@ int main(void) {
             inGame = false;
          break; }
          default: {
-            std::cout << "Invalid Input" << std::endl;
+            if(!std::cin.eof()) {
+               std::cout << "Invalid Input" << std::endl;
+            }
             // std::cin >> menuSelection;
          break; }
       }
