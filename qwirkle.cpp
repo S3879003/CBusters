@@ -87,21 +87,19 @@ int main(void) {
                std::cout << "Error: file does not exist" << std::endl;
             }
          break; }
-         case 3: // Credits (Show student information)
+         case 3: { // Credits (Show student information)
             // TODO - implement credits function
             displayCredits();
             // after printing, return to the main menu
-         break;
-         case 4: // Quit (also quit on EOF)
+         break; }
+         case 4: { // Quit (also quit on EOF)
             std::cout << "Goodbye" << std::endl;
             inGame = false;
-         break;
-         default:
+         break; }
+         default: {
             std::cout << "Invalid Input" << std::endl;
-            std::cin >> menuSelection;
-         break;
-   }
-
-   return EXIT_SUCCESS;
+            // std::cin >> menuSelection;
+         break; }
+      }
    }
 }
