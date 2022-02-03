@@ -24,14 +24,6 @@ void displayCredits() {
    }
 }
 
-bool saveFileFormatCorrect() { //testing
-   return true;
-}
-
-bool saveFileFormatCorrect(std::string fileName) { //testing
-   return true;
-}
-
 int main(void) {
    bool inGame = true;
    int menuSelection = 0;
@@ -49,7 +41,6 @@ int main(void) {
 
       switch (menuSelection) {
          case 1: { // New Game 
-            // TODO
             std::string playerNames[2];
             std::cout << "Player 1 Name: " << std::endl;
             std::cin >> playerNames[0];
@@ -58,7 +49,9 @@ int main(void) {
 
             std::cin.ignore();
 
-            game* newGame = new game(playerNames);
+            // game* newGame = new game(playerNames);
+            game* newGame = new game();
+            newGame->startNewGame(playerNames);
             newGame->gamePlayLoop();
          break; }
          case 2: { // Load Game
@@ -67,30 +60,26 @@ int main(void) {
             std::cout << "Enter the filename from which load a game" << std::endl;
             // user to enter "save1" (not save1.save)
             std::cin >> inputTmp;
+            game* newGame = nullptr;
 
             // check that the file exists
             std::ifstream checkFile;
             checkFile.open(inputTmp + ".save");
             if (checkFile) { 
-               // TODO: check file format ***TO CREATE bool saveFileFormatCorrect*** here or Game.cpp?
-               // if(saveFileFormatCorrect(checkFile)) { //passing in file OR
-               // if(saveFileFormatCorrect(inputTmp + ".save")) { //passing in filename
-               if(saveFileFormatCorrect()) { //TESTING
                   loadGameFile = inputTmp + ".save";
-                  std::cout << "Qwirkle game successfully loaded" << std::endl;
-                  game* newGame = new game(loadGameFile);
-                  newGame->gamePlayLoop();
-               } else {
-                  std::cout << "Error: file not correct format" << std::endl;
-               }
+                  // game* newGame = new game(loadGameFile);
+                  if(newGame->loadPreviousGame(loadGameFile)){
+                     std::cout << "Qwirkle game successfully loaded" << std::endl;
+                     newGame->gamePlayLoop();
+                  } else {
+                     std::cout << "Qwirkle game load failed" << std::endl;
+                  }
             } else {
                std::cout << "Error: file does not exist" << std::endl;
             }
          break; }
          case 3: { // Credits (Show student information)
-            // TODO - implement credits function
             displayCredits();
-            // after printing, return to the main menu
          break; }
          case 4: { // Quit (also quit on EOF)
             std::cout << "Goodbye" << std::endl;

@@ -210,7 +210,9 @@ void game::gamePlayLoop(){
         }
         else
         {
-            std::cout << menuInput << " is not a valid command, please try again!" << std::endl;
+            if(!std::cin.eof()) { // to avoid output on CTRL+D
+                std::cout << menuInput << " is not a valid command, please try again!" << std::endl;
+            }
             //ignore the rest of the input
             std::string ignore;
             std::getline(std::cin, ignore);
