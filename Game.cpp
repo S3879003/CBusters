@@ -21,7 +21,7 @@ game::game(std::string playerNames[]){
     for(int i = 0; i < NUM_PLAYERS; i++){
         LinkedList* hand = new LinkedList();
         // ~~initlize the player[i] with their hand.~~
-        playerArr[i] = new Player(playerNames[i], i, 0, hand);
+        playerArr[i] = new Player(playerNames[i], 0, hand);
         for(int x = 0; x < 6; x++){
             playerArr[i]->getHand()->addTileEnd(tileBag.remove_front());
         }
@@ -40,9 +40,9 @@ game::game(std::string fileName){
     //load each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
 
-        int id;
-        saveFile >> id;
-        saveFile.ignore();
+        // int id;
+        // saveFile >> id;
+        // saveFile.ignore();
 
         std::string name;
         std::getline(saveFile, name);
@@ -55,12 +55,13 @@ game::game(std::string fileName){
         for(int j = 0; j < 6; j++){
             char colour;
             saveFile >> colour;
+
             int shape;
             saveFile >> shape;
             saveFile.ignore();
             playersHand->addTileEnd(new Tile(colour, shape));
         }
-        playerArr[i] = new Player(name, id, score, playersHand);
+        playerArr[i] = new Player(name, score, playersHand);
     }
 
     // load the tilebag
@@ -238,11 +239,11 @@ void game::saveGame(){
     std::cout<< "please enter file name:" <<std::endl;
     std::cin >> fileName;
 
-    std::ofstream output(fileName + ".txt");
+    std::ofstream output(fileName + ".save");
 
     //save each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
-        output << playerArr[i]->getID() << std::endl;
+        // output << playerArr[i]->getID() << std::endl;
         output << playerArr[i]->getPlayerName() << std::endl;
         output << playerArr[i]->getScore() << std::endl;
         for(int j = 0; j < playerArr[i]->getHand()->getLength(); j++){
@@ -443,7 +444,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
         //check neighbour location to see if within map.
         while(i < 4)
         {
-            // std::cout << "while loop: " << i << std::endl;
+            //checks if the tile is within the board 
             if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])
             && map[row + neighbourRows[i]][col + neighbourCols[i]] != nullptr)
             {
@@ -521,18 +522,3 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
         return false;
     }
 }
-
-// for in file testing only
-// main(){
-//     // std::string playerNames[2];
-//     // std::cout << "Player 1 Name: " << std::endl;
-//     // std::cin >> playerNames[0];
-//     // std::cout << "Player 2 Name: " << std::endl;
-//     // std::cin >> playerNames[1];
-
-//     // std::cin.ignore();
-
-//     // game* newGame = new game(playerNames);
-
-
-// }

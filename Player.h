@@ -6,7 +6,7 @@
 class Player{
 public:
 
-    Player(std::string name, int id, int score, LinkedList* hand);
+    Player(std::string name, int score, LinkedList* hand);
 
     //retrieves tile at specified index
     Tile* tileAtIndex(int i);
@@ -48,7 +48,7 @@ private:
 
 
     std::string name;
-    int id;
+    // int id;
     int score;
     LinkedList* hand;
 
