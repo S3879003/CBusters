@@ -161,7 +161,7 @@ void game::gamePlayLoop(){
     bool exitConditionMet = false;
 
     //gameplay loop
-    while (exitConditionMet == false)
+    while (exitConditionMet == false && !std::cin.eof())
     {
         //display the game board
         displayBoard();
@@ -205,6 +205,7 @@ void game::gamePlayLoop(){
             saveGame();
         }
         else if (menuInput == "exit"){
+            std::cout << "Goodbye" << std::endl;
             exitConditionMet = true;
         }
         else
