@@ -213,7 +213,6 @@ void game::gamePlayLoop(){
         std::cout << std::endl;
 
         //take input for users turn
-        std::cout << "Awaiting user input: " << std::endl;
         std::cout << "> ";
         std::string menuInput;
         std::cin >> menuInput;
@@ -435,9 +434,6 @@ void game::replaceTile(std::string menuInput){
     
     //take in the shape
     std::cin >> shape;
-
-    //Eat the word "at".
-    std::cin >> menuInput;
 
     if(checkHand(colour, shape)){
         //create a temp tile and call function that removes the tile from player hand
