@@ -13,6 +13,8 @@ public:
     //load game constructor
     game(std::string fileName);
 
+    bool loadGame(std::string fileName);
+
     //destructor
     ~game();
 

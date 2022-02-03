@@ -1,7 +1,7 @@
 #include "Player.h"
 
 //player constructor
-Player::Player(std::string name, int score, LinkedList* hand): 
+Player::Player(std::string name, int id,  int score, LinkedList* hand): 
                                         name(name), score(score), hand(hand)
                                         {}
 
@@ -40,14 +40,18 @@ int Player::getHandCount(){
     return hand->getLength();
 }
 
+void Player::setHand(LinkedList* playersHand){
+    hand = playersHand;
+}
+
 //adds a tile to back of the players hand
 void Player::addTile(Tile* tile){
     hand->addTileEnd(tile);
 }
 
-// int Player::getID(){
-//     return id;
-// }
+int Player::getID(){
+    return id;
+}
 
 // void Player::setID(int id){
 //     this->id = id;

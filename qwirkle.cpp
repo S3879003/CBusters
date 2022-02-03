@@ -8,7 +8,8 @@
 
 int main(void) {
    std::string playerNames[] = {"greg", "john"};
-   game* newGame = new game(playerNames);
+   game* newGame = new game("maybe.txt");
+   // newGame->loadGame();
    newGame->gamePlayLoop();
 
    return EXIT_SUCCESS;

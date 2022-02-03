@@ -10,58 +10,54 @@
 
 //constructor for game object -- In future needs to take in player names from main menu.
 game::game(std::string playerNames[]){
-    //setup a new game empty board.
+    // setup a new game empty board.
     setBoardSize(26);
     setupGameboard();
     
     //initilize tile bag - randomly sort the bag.
     setupTileBag();
 
-    //setup players with their name and hand list.
+    // setup players with their name and hand list.
     for(int i = 0; i < NUM_PLAYERS; i++){
         LinkedList* hand = new LinkedList();
         // ~~initlize the player[i] with their hand.~~
-        playerArr[i] = new Player(playerNames[i], 0, hand);
+        playerArr[i] = new Player(playerNames[i], i, 0, hand);
         for(int x = 0; x < 6; x++){
             playerArr[i]->getHand()->addTileEnd(tileBag.remove_front());
         }
     }
 
-
-    //start gameplay loop
     turnTracker = 0;
     // gamePlayLoop();
 }
 
-//load game constructor
 game::game(std::string fileName){
     std::ifstream saveFile(fileName);
     
     //load each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
 
-        // int id;
-        // saveFile >> id;
-        // saveFile.ignore();
-
+        //take in the players name
         std::string name;
-        std::getline(saveFile, name);
-
+        std::getline(saveFile, name);        
+        
+        //take in the players score
         int score;
         saveFile >> score;
 
         LinkedList* playersHand = new LinkedList;
 
+        //load players hand
         for(int j = 0; j < 6; j++){
             char colour;
             saveFile >> colour;
-
             int shape;
             saveFile >> shape;
             saveFile.ignore();
             playersHand->addTileEnd(new Tile(colour, shape));
         }
-        playerArr[i] = new Player(name, score, playersHand);
+        saveFile.ignore();
+        playerArr[i] = new Player(name, i, score, playersHand);
     }
 
     // load the tilebag
@@ -108,7 +104,7 @@ game::game(std::string fileName){
         map[int(row)-65][col] = temp;
         i+=7;
     }
-    gamePlayLoop();
+    // gamePlayLoop();
 }
 
 //setup a randomly generated tilebag
@@ -158,6 +154,7 @@ void game::setupTileBag(){
 
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
+
     // bool gameEnd = false;
     bool exitConditionMet = false;
 
@@ -240,7 +237,7 @@ void game::saveGame(){
     std::cout<< "please enter file name:" <<std::endl;
     std::cin >> fileName;
 
-    std::ofstream output(fileName + ".save");
+    std::ofstream output(fileName + ".txt");
 
     //save each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
