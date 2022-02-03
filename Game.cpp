@@ -42,14 +42,17 @@ bool game::loadPreviousGame(std::string fileName){
     std::string t;
     while( !saveFile.eof()){
         getline(saveFile, t);
+        std::cout << t << std::endl;
         lines.push_back(t);
     }
+
     int lineCount = 0;
     for(int i = 0; i < NUM_PLAYERS; i++){
         std::string name;
         int score = 0;
         LinkedList* playersHand =  new LinkedList();
         name = lines[lineCount];
+        std::cout << name << std::endl;
         lineCount++;
 
         score = stoi(lines[lineCount]);
@@ -289,7 +292,7 @@ void game::saveGame(){
     output << std::endl;
 
     //save turn tracker
-    output << turnTracker << std::endl;
+    output << playerArr[getPlayersTurn()]->getPlayerName() << std::endl;
     char rowSymbol = 'A';
 
     //save game board state.
@@ -486,6 +489,7 @@ bool game::checkHand(char colour, int shape){
 
 //checks to see if the tile placement is valid
 bool game::checkPlacement(char colour, int shape, int row, int col){
+    std::cout << colour << shape << row << "|" << col << std::endl;
     bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.
@@ -512,6 +516,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape)
                 {
                     if(checkLineLength(row, col, neighbourRows[i], neighbourCols[i], colour, shape)){
+                        std::cout << "true" << std::endl;
                         isValid = true;
                     } else{
                         isValid = false;

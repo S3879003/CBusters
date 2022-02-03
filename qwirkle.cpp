@@ -11,7 +11,7 @@ int main(void) {
    game* newGame = new game();
    // newGame->startNewGame(playerNames);
 
-   if(newGame->loadPreviousGame("saveTest.save")){
+   if(newGame->loadPreviousGame("newSave1.save")){
       newGame->gamePlayLoop();
    }else{
       std::cout << "failed to load game, corrupt file" << std::endl;
