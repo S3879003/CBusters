@@ -8,9 +8,15 @@
 
 int main(void) {
    std::string playerNames[] = {"greg", "john"};
-   game* newGame = new game("maybe.txt");
-   // newGame->loadGame();
-   newGame->gamePlayLoop();
+   game* newGame = new game();
+   // newGame->startNewGame(playerNames);
+
+   if(newGame->loadPreviousGame("saveTest.save")){
+      newGame->gamePlayLoop();
+   }else{
+      std::cout << "failed to load game, corrupt file" << std::endl;
+   }
+
 
    return EXIT_SUCCESS;
 }

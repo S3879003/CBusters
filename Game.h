@@ -8,12 +8,11 @@
 class game{
 public:
     //constructor
-    game(std::string playerNames[]);
+    game();
 
-    //load game constructor
-    game(std::string fileName);
+    bool loadPreviousGame(std::string fileName);
 
-    bool loadGame(std::string fileName);
+    void startNewGame(std::string playerNames[]);
 
     //destructor
     ~game();
@@ -58,6 +57,10 @@ public:
     
     //checks the length of the line on the gameboard
     bool checkLineLength(int row, int col,  int dirRow, int dirCol, char colour, int shape);
+
+    bool checkColour(char colour);
+
+    bool checkShape(int shape);
 private:
     //LinkedList holding all game tiles not in hand/play.
     LinkedList tileBag;
