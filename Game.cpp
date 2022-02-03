@@ -2,19 +2,23 @@
 #include "Node.h"
 #include "TileCodes.h"
 #include <iostream>
+#include <list>
 #include <fstream>
 #include <string>
 #include <random>
 #include <algorithm>
 #include <sstream>
 
-//constructor for game object -- In future needs to take in player names from main menu.
-game::game(std::string playerNames[]){
+//constructor for game object
+game::game(){
     // setup a new game empty board.
     setBoardSize(26);
     setupGameboard();
-    
-    //initilize tile bag - randomly sort the bag.
+}
+
+//intialises new game with inputed player names
+void game::startNewGame(std::string playerNames[]){
+    // initilize tile bag - randomly sort the bag.
     setupTileBag();
 
     // setup players with their name and hand list.
@@ -28,46 +32,54 @@ game::game(std::string playerNames[]){
     }
 
     turnTracker = 0;
-    // gamePlayLoop();
+    gamePlayLoop();
 }
 
-game::game(std::string fileName){
+//loads previous game from file
+bool game::loadPreviousGame(std::string fileName){
     std::ifstream saveFile(fileName);
-    
-    //load each players information - ID, name, score and hand
+    std::vector<std::string> lines;
+    std::string t;
+    while( !saveFile.eof()){
+        getline(saveFile, t);
+        lines.push_back(t);
+    }
+    int lineCount = 0;
     for(int i = 0; i < NUM_PLAYERS; i++){
-
-        //take in the players name
         std::string name;
-        std::getline(saveFile, name);        
-        
-        //take in the players score
-        int score;
-        saveFile >> score;
+        int score = 0;
+        LinkedList* playersHand =  new LinkedList();
+        name = lines[lineCount];
+        lineCount++;
 
-        LinkedList* playersHand = new LinkedList;
+        score = stoi(lines[lineCount]);
+        lineCount++;
 
-        //load players hand
+        int searchIndex = 0;
         for(int j = 0; j < 6; j++){
-            char colour;
-            saveFile >> colour;
-            int shape;
-            saveFile >> shape;
-            saveFile.ignore();
+            char colour = lines[lineCount][searchIndex];
+            int shape = lines[lineCount][searchIndex+1];
+            shape = shape-48;
+
+            //check to see if shape and colour from file is of valid type
+            if(!checkColour(colour) || !checkShape(shape)){
+                return false;
+            }
+
+            searchIndex+=3;
             playersHand->addTileEnd(new Tile(colour, shape));
         }
-        saveFile.ignore();
-        playerArr[i] = new Player(name, i, score, playersHand);
+        lineCount++;
+
+        playerArr[i] = new Player(name, 0, score, playersHand);
     }
 
     // load the tilebag
-    std::string tileBagContents;
-    saveFile >> tileBagContents;
     char delimiter = ',';
     std::vector<std::string> tiles;
     std::string tile;
 
-    std::stringstream sstream(tileBagContents);
+    std::stringstream sstream(lines[lineCount]);
     while(std::getline(sstream, tile, delimiter)){
         tiles.push_back(tile);
     }
@@ -79,23 +91,40 @@ game::game(std::string fileName){
 
         tileBag.addTileEnd(new Tile(colour, shape));
     }
-    //load the turn tracker
-    saveFile >> turnTracker;
-    saveFile.ignore();
+    lineCount++; 
+
+    //set the turn tracker to equal appropriate players turn
+    for(int i = 0; i < NUM_PLAYERS; i++){
+        if(lines[lineCount] == playerArr[i]->getPlayerName()){
+            turnTracker = i;
+        }
+    }
+    lineCount++;
 
     //load the game board state
-    setupGameboard();
-    int i = 0;
-    std::string boardState;
-    std::getline(saveFile, boardState);
-    while(i <= (int)boardState.length()-2){
-        char colour = boardState[i];
-        int shape = boardState[i+1] - 48;
-        char row = boardState[i+3];
-        int col = boardState[i+4]- 48;
+    int i = 0;    
+    while(i <= (int)lines[lineCount].length()-2){
+        char colour = lines[lineCount][i];
+        int shape = lines[lineCount][i+1] - 48;
+        std::cout << colour << shape << std::endl;
 
-        if (boardState[i+5] != ','){
-            std::string twoNumbers = std::to_string(boardState[i+4]-48) + std::to_string(boardState[i+5]-48);
+        if(!checkColour(colour) || !checkShape(shape)){
+            std::cout << "error here" << std::endl;
+            return false;
+        }
+
+        char row = lines[lineCount][i+3];
+        int col = lines[lineCount][i+4]- 48;
+        std::cout << row << col << std::endl;
+
+        if(!withinBoard((int)row-65, col)){
+            std::cout << "error here" << std::endl;
+            return false;
+        }
+
+        if (lines[lineCount][i+5] != ','){
+            std::string twoNumbers = std::to_string(lines[lineCount][i+4]-48) 
+                                    + std::to_string(lines[lineCount][i+5]-48);
             col = std::stoi(twoNumbers);
             i++;
         }
@@ -104,7 +133,7 @@ game::game(std::string fileName){
         map[int(row)-65][col] = temp;
         i+=7;
     }
-    // gamePlayLoop();
+    return true;
 }
 
 //setup a randomly generated tilebag
@@ -154,7 +183,6 @@ void game::setupTileBag(){
 
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
-
     // bool gameEnd = false;
     bool exitConditionMet = false;
 
@@ -237,7 +265,7 @@ void game::saveGame(){
     std::cout<< "please enter file name:" <<std::endl;
     std::cin >> fileName;
 
-    std::ofstream output(fileName + ".txt");
+    std::ofstream output(fileName + ".save");
 
     //save each players information - ID, name, score and hand
     for(int i = 0; i < NUM_PLAYERS; i++){
@@ -551,6 +579,28 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
     }    
     else{
     //returns false if end of the line isn't reached. i.e line must already be 6 in length.
+        return false;
+    }
+}
+
+//checks to see if colour is valid
+bool game::checkColour(char colour){
+    if(colour == RED || colour == ORANGE || colour == YELLOW || 
+        colour == GREEN || colour == BLUE || colour == PURPLE){
+        return true;
+    }
+    else { 
+        return false; 
+    }
+}
+
+//checks to see if shape is valid
+bool game::checkShape(int shape){
+    if(shape == CIRCLE || shape == STAR_4 || shape == DIAMOND ||
+        shape == SQUARE || shape == STAR_6 || shape == CLOVER){
+        return true;
+    } 
+    else {
         return false;
     }
 }
