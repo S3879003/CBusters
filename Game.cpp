@@ -9,13 +9,15 @@
 #include <algorithm>
 #include <sstream>
 
+           //      SETUP METHODS    //
+           //----------------------//
 //constructor for game object
 game::game(){
     // setup a new game empty board.
     setBoardSize(26);
     setupGameboard();
 }
-
+    
 //intialises new game with inputed player names
 void game::startNewGame(std::string playerNames[]){
     // initilize tile bag - randomly sort the bag.
@@ -139,6 +141,57 @@ bool game::loadPreviousGame(std::string fileName){
     return true;
 }
 
+//saves the game to file
+void game::saveGame(){
+    //ask for save name
+    std::string fileName;
+    std::cout<< "please enter file name:" <<std::endl;
+    std::cin >> fileName;
+
+    std::ofstream output(fileName + ".save");
+
+    //save each players information - ID, name, score and hand
+    for(int i = 0; i < NUM_PLAYERS; i++){
+        // output << playerArr[i]->getID() << std::endl;
+        output << playerArr[i]->getPlayerName() << std::endl;
+        output << playerArr[i]->getScore() << std::endl;
+        for(int j = 0; j < playerArr[i]->getHand()->getLength(); j++){
+            output << playerArr[i]->getHand()->getTileAtIndex(j)->getColour() 
+                        << playerArr[i]->getHand()->getTileAtIndex(j)->getShape() 
+                        << ",";
+        }
+        output << std::endl;
+    }
+
+    //save the tilebag
+    for(int i = 0; i <= tileBag.getLength()-1; i++){
+        output << tileBag.getTileAtIndex(i)->colour
+                  << tileBag.getTileAtIndex(i)->shape
+                  << ",";
+    }
+    output << std::endl;
+
+    //save turn tracker
+    output << playerArr[getPlayersTurn()]->getPlayerName() << std::endl;
+    char rowSymbol = 'A';
+
+    //save game board state.
+    for (size_t row = 0; row < map.size(); row++)
+    {
+        for (size_t col = 0; col < map.size(); col++)
+        {
+            
+            if(map[row][col] != nullptr){
+                output << map[row][col]->colour << map[row][col]->shape << "@" << rowSymbol << col << ", ";
+            }            
+        }
+        rowSymbol++;
+    }
+    output << std::endl;
+
+    std::cout << "Game " << fileName << " Has been Saved!" << std::endl;
+}
+
 //setup a randomly generated tilebag
 void game::setupTileBag(){
     //generate all tiles - 6 colours with 6 different shapes and 2 of each type (72 in total).
@@ -184,6 +237,28 @@ void game::setupTileBag(){
     }
 }
 
+//setup an empty game board.
+void game::setupGameboard(){
+    for (int row = 0; row < BOARD_SIZE; row++)
+    {
+        std::vector<Tile*> temp;
+        for (int col = 0; col < BOARD_SIZE; col++)
+        {
+            Tile* tempNode = nullptr;
+            temp.push_back(tempNode);
+        }
+        map.push_back(temp);
+    }
+}
+
+//sets the board size
+void game::setBoardSize(int size){
+    this->boardSize = size;
+}
+
+
+       //    Game Play Methods    //
+       //------------------------//
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
     // bool gameEnd = false;
@@ -250,6 +325,83 @@ void game::gamePlayLoop(){
     }
 }
 
+//places a new tile on the gameboard
+void game::placeTile(std::string menuInput){
+    char colour;
+    int shape;
+
+    //take in the colour
+    std::cin >> colour;
+    
+    //take in the shape
+    std::cin >> shape;
+
+    //Eat the word "at".
+    std::cin >> menuInput;
+
+    //take in the row and col values
+    char row;
+    int col;
+    std::cin >> row;
+    std::cin >> col;
+
+    if(checkHand(colour, shape) && withinBoard((int)row-65, col)
+    && checkPlacement(colour, shape, (int)row-65, col)){
+        //create a temp tile and call function that removes the tile from player hand
+        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
+
+        //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
+        map[int(row)-65][col] = temp;
+        
+        //add new tile to the end of players hand and remove tile from top of the tile bag.
+        if(tileBag.getLength() > 0){
+            playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        }
+
+        //ignore the leftover text in the input stream.
+        std::cin.ignore();
+        changePlayerTurn();
+    } else{
+        //ignore the rest of the input
+        std::string ignore;
+        std::getline(std::cin, ignore);
+
+        std::cout << "something went wrong, please try again!" << std::endl;
+    }
+}
+
+//replaces tile in users hand with a tile from the bag
+void game::replaceTile(std::string menuInput){
+    char colour;
+    int shape;
+
+    //take in the colour
+    std::cin >> colour;
+    
+    //take in the shape
+    std::cin >> shape;
+
+    if(checkHand(colour, shape)){
+        //create a temp tile and call function that removes the tile from player hand
+        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
+
+        //emove tile from top of the tile bag and add it to the end of players hand and r
+        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+
+        //add the players removed tile back to the tile bag
+        tileBag.addTileEnd(temp);
+
+        //ignore the leftover text in the input stream.
+        std::cin.ignore();
+    } else{
+        //ignore the rest of the input
+        std::string ignore;
+        std::getline(std::cin, ignore);
+
+        std::cout << "Something went wrong, please try again!" << std::endl;
+    }
+}
+
 //changes the players turn
 void game::changePlayerTurn(){
    turnTracker +=1;
@@ -258,76 +410,6 @@ void game::changePlayerTurn(){
 //gets the TurnTracker modulus 2
 int game::getPlayersTurn(){
     return turnTracker%2;
-}
-
-//saves the game to file
-void game::saveGame(){
-    //ask for save name
-    std::string fileName;
-    std::cout<< "please enter file name:" <<std::endl;
-    std::cin >> fileName;
-
-    std::ofstream output(fileName + ".save");
-
-    //save each players information - ID, name, score and hand
-    for(int i = 0; i < NUM_PLAYERS; i++){
-        // output << playerArr[i]->getID() << std::endl;
-        output << playerArr[i]->getPlayerName() << std::endl;
-        output << playerArr[i]->getScore() << std::endl;
-        for(int j = 0; j < playerArr[i]->getHand()->getLength(); j++){
-            output << playerArr[i]->getHand()->getTileAtIndex(j)->getColour() 
-                        << playerArr[i]->getHand()->getTileAtIndex(j)->getShape() 
-                        << ",";
-        }
-        output << std::endl;
-    }
-
-    //save the tilebag
-    for(int i = 0; i <= tileBag.getLength()-1; i++){
-        output << tileBag.getTileAtIndex(i)->colour
-                  << tileBag.getTileAtIndex(i)->shape
-                  << ",";
-    }
-    output << std::endl;
-
-    //save turn tracker
-    output << playerArr[getPlayersTurn()]->getPlayerName() << std::endl;
-    char rowSymbol = 'A';
-
-    //save game board state.
-    for (size_t row = 0; row < map.size(); row++)
-    {
-        for (size_t col = 0; col < map.size(); col++)
-        {
-            
-            if(map[row][col] != nullptr){
-                output << map[row][col]->colour << map[row][col]->shape << "@" << rowSymbol << col << ", ";
-            }            
-        }
-        rowSymbol++;
-    }
-    output << std::endl;
-
-    std::cout << "Game " << fileName << " Has been Saved!" << std::endl;
-}
-
-//setup an empty game board.
-void game::setupGameboard(){
-    for (int row = 0; row < BOARD_SIZE; row++)
-    {
-        std::vector<Tile*> temp;
-        for (int col = 0; col < BOARD_SIZE; col++)
-        {
-            Tile* tempNode = nullptr;
-            temp.push_back(tempNode);
-        }
-        map.push_back(temp);
-    }
-}
-
-//sets the board size
-void game::setBoardSize(int size){
-    this->boardSize = size;
 }
 
 //display game board
@@ -380,82 +462,9 @@ void game::displayBoard(){
     }
 }
 
-//places a new tile on the gameboard
-void game::placeTile(std::string menuInput){
-    char colour;
-    int shape;
 
-    //take in the colour
-    std::cin >> colour;
-    
-    //take in the shape
-    std::cin >> shape;
-
-    //Eat the word "at".
-    std::cin >> menuInput;
-
-    //take in the row and col values
-    char row;
-    int col;
-    std::cin >> row;
-    std::cin >> col;
-
-    if(checkHand(colour, shape) && withinBoard((int)row-65, col)
-    && checkPlacement(colour, shape, (int)row-65, col)){
-        //create a temp tile and call function that removes the tile from player hand
-        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
-
-        //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
-        map[int(row)-65][col] = temp;
-        
-        //add new tile to the end of players hand and remove tile from top of the tile bag.
-        if(tileBag.getLength() > 0){
-            playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
-        }
-
-        //ignore the leftover text in the input stream.
-        std::cin.ignore();
-        changePlayerTurn();
-    } else{
-        //ignore the rest of the input
-        std::string ignore;
-        std::getline(std::cin, ignore);
-
-        std::cout << "something went wrong, please try again!" << std::endl;
-    }
-}
-
-void game::replaceTile(std::string menuInput){
-    char colour;
-    int shape;
-
-    //take in the colour
-    std::cin >> colour;
-    
-    //take in the shape
-    std::cin >> shape;
-
-    if(checkHand(colour, shape)){
-        //create a temp tile and call function that removes the tile from player hand
-        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
-
-        //add new tile to the end of players hand and remove tile from top of the tile bag.
-        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
-
-        //add the players removed tile back to the tile bag
-        tileBag.addTileEnd(temp);
-
-        //ignore the leftover text in the input stream.
-        std::cin.ignore();
-    } else{
-        //ignore the rest of the input
-        std::string ignore;
-        std::getline(std::cin, ignore);
-
-        std::cout << "Something went wrong, please try again!" << std::endl;
-    }
-}
-
+      //   CHECKING METHODS   //
+      //----------------------//
 //checks to see if a location is within gameboard
 bool game::withinBoard(int row, int col){
     //check coordinates in bound
