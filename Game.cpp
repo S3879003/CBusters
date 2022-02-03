@@ -199,7 +199,8 @@ void game::gamePlayLoop(){
         //replace tile
         else if (menuInput == "replace")
         {
-            //TODO
+            replaceTile(menuInput);
+            changePlayerTurn();
         }
         //save game
         else if (menuInput == "save"){
@@ -393,7 +394,41 @@ void game::placeTile(std::string menuInput){
         std::string ignore;
         std::getline(std::cin, ignore);
 
-        // std::cout << "something went wrong, please try again!" << std::endl;
+        std::cout << "something went wrong, please try again!" << std::endl;
+    }
+}
+
+void game::replaceTile(std::string menuInput){
+    char colour;
+    int shape;
+
+    //take in the colour
+    std::cin >> colour;
+    
+    //take in the shape
+    std::cin >> shape;
+
+    //Eat the word "at".
+    std::cin >> menuInput;
+
+    if(checkHand(colour, shape)){
+        //create a temp tile and call function that removes the tile from player hand
+        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
+
+        //add new tile to the end of players hand and remove tile from top of the tile bag.
+        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+
+        //add the players removed tile back to the tile bag
+        tileBag.addTileEnd(temp);
+
+        //ignore the leftover text in the input stream.
+        std::cin.ignore();
+    } else{
+        //ignore the rest of the input
+        std::string ignore;
+        std::getline(std::cin, ignore);
+
+        std::cout << "Something went wrong, please try again!" << std::endl;
     }
 }
 
