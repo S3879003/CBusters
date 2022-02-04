@@ -43,6 +43,8 @@ public:
     //places a new tile on the gameboard
     void placeTile(std::string menuInput);
 
+    void score(int row, int col, char colour, int shape);
+
     //checks if row & col coordinates are valid
     bool withinBoard(int row, int col);
 
@@ -53,7 +55,7 @@ public:
     bool checkPlacement(char colour, int shape, int row, int col);
     
     //checks the length of the line on the gameboard
-    bool checkLineLength(int row, int col, int i, int dirRow[], int dirCol[], char colour, int shape);
+    bool checkLineLength(int row, int col,  int dirRow, int dirCol, char colour, int shape);
 private:
     //LinkedList holding all game tiles not in hand/play.
     LinkedList tileBag;

@@ -12,13 +12,13 @@ int Player::getScore(){
 
 //sets players score
 void Player::setScore(int score){
-    Player::score = score;
+    this->score = score;
 }
 
 
 //updates players score
 void Player::updateScore(int score){
-    Player::score += score;
+    this->score += score;
 }
 
 //returns the players hand list
