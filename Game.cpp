@@ -375,6 +375,67 @@ void game::placeTile(std::string menuInput){
         std::cout << "something went wrong, please try again!" << std::endl;
     }
 }
+void game::score(int row, int col, char colour, int shape){
+    std::cout << "1" << std::endl;
+    //To help cycle through surrounding tiles
+    int neighbourRows[] = {0, 1, 0, -1};
+    int neighbourCols[] = {1, 0, -1, 0};
+    int score = 1;
+    bool checkScoreValid = true;
+    
+    //Checks each surrounding tile
+    for(int i = 0; i < 4; i++){
+        int rowCount = 1;
+        std::cout << "2" << std::endl;
+        //Verifies that the current tile is valid
+        if(map[row + neighbourRows[i]][col + neighbourCols[i]]!=nullptr){
+            if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
+            || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
+                bool validQwirkle = true;
+                std::cout << "3" << std::endl;
+                if(score > 1){
+                    score++;
+                }
+                //Sets the just checked tile to be the current tile
+                int currentRow = row + neighbourRows[i];
+                int currentCol = col + neighbourCols[i];
+                //Loops through the tiles in certain direction until invalid tile is found
+                while(checkScoreValid){
+                    if(map[currentRow][currentCol]!=nullptr){
+                        std::cout << "4" << std::endl;
+                        std::cout << currentRow << " " << currentCol << std::endl;
+                        if(map[currentRow][currentCol]->colour == colour
+                        || map[currentRow][currentCol]->shape == shape){
+                            if(map[currentRow][currentCol]->colour != colour
+                            && map[currentRow][currentCol]->shape != shape){
+                                validQwirkle = false;
+                                std::cout << "False" << std::endl;
+                            }
+                            std::cout << "5" << std::endl;
+                            score++;
+                            rowCount++;
+                            currentRow = currentRow + neighbourRows[i];
+                            currentCol = currentCol + neighbourCols[i];
+                        }else{
+                            checkScoreValid = false;
+                            if(rowCount == 6 && validQwirkle == true){
+                                std::cout << "QWIRKLE" << std::endl;
+                                score += 6;
+                            }
+                        }
+                    }else{
+                            checkScoreValid = false;
+                            if(rowCount == 6 && validQwirkle == true){
+                                score += 6;
+                            }
+                        }
+                }
+            }
+            
+        }
+    }
+    playerArr[getPlayersTurn()]->updateScore(score);
+}
 
 //replaces tile in users hand with a tile from the bag
 void game::replaceTile(std::string menuInput){
