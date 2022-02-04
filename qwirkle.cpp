@@ -16,12 +16,15 @@ void displayCredits() {
                             "s3879003@student.rmit.edu.au", 
                             "s3794214@student.rmit.edu.au", 
                             "s3886861@student.rmit.edu.au"};
+
+   std::cout << "----------------------------------" << std::endl;
    for(int i = 0; i < 4; i++) {
       std::cout << "Name: " << names[i] << std::endl;
       std::cout << "Student ID: " << ids[i] << std::endl;
       std::cout << "Email: " << emails[i] << std::endl;
       std::cout << std::endl;
    }
+   std::cout << "----------------------------------" << std::endl;
 }
 
 int main(void) {
