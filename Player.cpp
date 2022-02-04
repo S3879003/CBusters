@@ -7,7 +7,7 @@ Player::Player(std::string name, int id,  int score, LinkedList* hand):
 
 //returns players score
 int Player::getScore(){
-    return score;
+    return this->score;
 }
 
 //sets players score
