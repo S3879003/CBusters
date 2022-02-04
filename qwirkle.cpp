@@ -60,7 +60,7 @@ int main(void) {
             std::cout << "Enter the filename from which load a game" << std::endl;
             // user to enter "save1" (not save1.save)
             std::cin >> inputTmp;
-            game* newGame = nullptr;
+            game* newGame = new game();
 
             // check that the file exists
             std::ifstream checkFile;
