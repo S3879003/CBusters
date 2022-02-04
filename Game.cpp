@@ -33,28 +33,32 @@ void game::startNewGame(std::string playerNames[]){
         }
     }
 
-    turnTracker = 0;
+    this->turnTracker = 0;
     gamePlayLoop();
+}
+
+void game::setPlayersTurn(int i){
+    this->turnTracker = i;
 }
 
 //loads previous game from file
 bool game::loadPreviousGame(std::string fileName){
-    std::ifstream saveFile(fileName);
+   std::ifstream saveFile(fileName);
     std::vector<std::string> lines;
     std::string t;
     while( !saveFile.eof()){
         getline(saveFile, t);
-        std::cout << t << std::endl;
         lines.push_back(t);
     }
 
     int lineCount = 0;
     for(int i = 0; i < NUM_PLAYERS; i++){
         std::string name;
+        std::getline(saveFile, name);
         int score = 0;
-        LinkedList* playersHand =  new LinkedList();
+        LinkedList* playersHand = new LinkedList();
+        // std::getline(saveFile, name);
         name = lines[lineCount];
-        std::cout << name << std::endl;
         lineCount++;
 
         score = stoi(lines[lineCount]);
@@ -89,10 +93,11 @@ bool game::loadPreviousGame(std::string fileName){
         tiles.push_back(tile);
     }
 
-    for(int i = 0; i < (int)tiles.size(); i++){
+    for(int i = 0; i < (int)tiles.size()-1; i++){
         std::string temp = tiles[i];
         char colour = temp[0];
         int shape = temp[1] - 48;
+        std::cout << shape << std::endl;
 
         tileBag.addTileEnd(new Tile(colour, shape));
     }
@@ -105,25 +110,24 @@ bool game::loadPreviousGame(std::string fileName){
         }
     }
     lineCount++;
-
+    if(lines[lineCount].length() > 0 ){
+        turnTracker+=2;
+    }
     //load the game board state
-    int i = 0;    
+    int i = 0;
+
     while(i <= (int)lines[lineCount].length()-2){
         char colour = lines[lineCount][i];
         int shape = lines[lineCount][i+1] - 48;
-        std::cout << colour << shape << std::endl;
 
         if(!checkColour(colour) || !checkShape(shape)){
-            std::cout << "error here" << std::endl;
             return false;
         }
 
         char row = lines[lineCount][i+3];
         int col = lines[lineCount][i+4]- 48;
-        std::cout << row << col << std::endl;
 
         if(!withinBoard((int)row-65, col)){
-            std::cout << "error here" << std::endl;
             return false;
         }
 
@@ -255,7 +259,6 @@ void game::setupGameboard(){
 void game::setBoardSize(int size){
     this->boardSize = size;
 }
-
 
        //    Game Play Methods    //
        //------------------------//
@@ -440,7 +443,7 @@ void game::displayBoard(){
                 std::cout << "---";
             }
         }
-        std::cout<<std::endl;
+        std::cout << std::endl;
     }
     char rowLetters = 'A';
     //loop through the map vector.

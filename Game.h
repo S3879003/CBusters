@@ -41,6 +41,9 @@ public:
     //returns players turn
     int getPlayersTurn();
 
+    //set players turn
+    void setPlayersTurn(int i);
+
     //places a new tile on the gameboard
     void placeTile(std::string menuInput);
 
