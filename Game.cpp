@@ -356,6 +356,7 @@ void game::placeTile(std::string menuInput){
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
+        score((int)row - 65, col, colour, shape);
         //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
         map[int(row)-65][col] = temp;
         
