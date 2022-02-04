@@ -28,6 +28,9 @@ int main(void) {
    bool inGame = true;
    int menuSelection = 0;
 
+   // Print welcome message
+   std::cout << "Welcome to Qwirkle!" << std::endl;
+   std::cout << "-------------------" << std::endl;
 
    while (inGame != false && !std::cin.eof()) {
       std::cout << "Menu" << std::endl;
