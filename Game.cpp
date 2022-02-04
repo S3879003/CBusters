@@ -97,7 +97,6 @@ bool game::loadPreviousGame(std::string fileName){
         std::string temp = tiles[i];
         char colour = temp[0];
         int shape = temp[1] - 48;
-        std::cout << shape << std::endl;
 
         tileBag.addTileEnd(new Tile(colour, shape));
     }
@@ -272,11 +271,12 @@ void game::gamePlayLoop(){
     {
         //display the game board
         displayBoard();
-
+        std::cout << std::endl;
+        std::cout.flush();
         //display each players score
         for (int i = 0; i < NUM_PLAYERS; i++)
         {
-            std::cout << playerArr[i]->getPlayerName() << "'s Score: " << playerArr[i]->getScore() << " | ";
+            std::cout << playerArr[i]->getPlayerName() << "\'s Score: " << playerArr[i]->getScore() << " | ";
         }
         std::cout << std::endl;
         //display player turn details
@@ -500,7 +500,6 @@ bool game::checkHand(char colour, int shape){
 
 //checks to see if the tile placement is valid
 bool game::checkPlacement(char colour, int shape, int row, int col){
-    std::cout << colour << shape << row << "|" << col << std::endl;
     bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.
@@ -567,6 +566,7 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
         //see if the next  location is within board boundries
         if(withinBoard(row + dirRow, col + dirCol)
         && map[row + dirRow][col + dirCol] != nullptr){
+
             //check to see if each tile isn't the same colour and shape as the inputed tile.
             if(map[row + dirRow][col + dirCol]->colour == colour
             && map[row + dirRow][col + dirCol]->shape == shape){
@@ -574,13 +574,12 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
                 return false;
             }
             //check to see if there is a tile in the next location
-            if(map[row + dirRow][col + dirCol] != nullptr){
+            if(map[row + dirRow][col + dirCol]->colour == colour 
+            || map[row + dirRow][col + dirCol]->shape == shape){
                 row = row + dirRow;
                 col = col + dirCol;
             } else{
-                //line has ended, break out of loop
-                x = 6;
-                endOfLine = true;
+                return false;
             }
         }
         else{
