@@ -2,22 +2,28 @@
 #include "Node.h"
 #include "TileCodes.h"
 #include <iostream>
+#include <list>
 #include <fstream>
 #include <string>
 #include <random>
 #include <algorithm>
 #include <sstream>
 
-//constructor for game object -- In future needs to take in player names from main menu.
-game::game(std::string playerNames[]){
-    //setup a new game empty board.
+           //      SETUP METHODS    //
+           //----------------------//
+//constructor for game object
+game::game(){
+    // setup a new game empty board.
     setBoardSize(26);
     setupGameboard();
+}
     
-    //initilize tile bag - randomly sort the bag.
+//intialises new game with inputed player names
+void game::startNewGame(std::string playerNames[]){
+    // initilize tile bag - randomly sort the bag.
     setupTileBag();
 
-    //setup players with their name and hand list.
+    // setup players with their name and hand list.
     for(int i = 0; i < NUM_PLAYERS; i++){
         LinkedList* hand = new LinkedList();
         // ~~initlize the player[i] with their hand.~~
@@ -27,78 +33,106 @@ game::game(std::string playerNames[]){
         }
     }
 
-
-    //start gameplay loop
-    turnTracker = 0;
-    // gamePlayLoop();
+    this->turnTracker = 0;
+    gamePlayLoop();
 }
 
-//load game constructor
-game::game(std::string fileName){
-    std::ifstream saveFile(fileName);
-    
-    //load each players information - ID, name, score and hand
+void game::setPlayersTurn(int i){
+    this->turnTracker = i;
+}
+
+//loads previous game from file
+bool game::loadPreviousGame(std::string fileName){
+   std::ifstream saveFile(fileName);
+    std::vector<std::string> lines;
+    std::string t;
+    while( !saveFile.eof()){
+        getline(saveFile, t);
+        lines.push_back(t);
+    }
+
+    int lineCount = 0;
     for(int i = 0; i < NUM_PLAYERS; i++){
-
-        int id;
-        saveFile >> id;
-        saveFile.ignore();
-
         std::string name;
         std::getline(saveFile, name);
+        int score = 0;
+        LinkedList* playersHand = new LinkedList();
+        // std::getline(saveFile, name);
+        name = lines[lineCount];
+        lineCount++;
 
-        int score;
-        saveFile >> score;
+        score = stoi(lines[lineCount]);
+        lineCount++;
 
-        LinkedList* playersHand = new LinkedList;
-
+        int searchIndex = 0;
         for(int j = 0; j < 6; j++){
-            char colour;
-            saveFile >> colour;
-            int shape;
-            saveFile >> shape;
-            saveFile.ignore();
+            char colour = lines[lineCount][searchIndex];
+            int shape = lines[lineCount][searchIndex+1];
+            shape = shape-48;
+
+            //check to see if shape and colour from file is of valid type
+            if(!checkColour(colour) || !checkShape(shape)){
+                return false;
+            }
+
+            searchIndex+=3;
             playersHand->addTileEnd(new Tile(colour, shape));
         }
-        playerArr[i] = new Player(name, id, score, playersHand);
+        lineCount++;
+
+        playerArr[i] = new Player(name, 0, score, playersHand);
     }
 
     // load the tilebag
-    std::string tileBagContents;
-    saveFile >> tileBagContents;
     char delimiter = ',';
     std::vector<std::string> tiles;
     std::string tile;
 
-    std::stringstream sstream(tileBagContents);
+    std::stringstream sstream(lines[lineCount]);
     while(std::getline(sstream, tile, delimiter)){
         tiles.push_back(tile);
     }
 
-    for(int i = 0; i < (int)tiles.size(); i++){
+    for(int i = 0; i < (int)tiles.size()-1; i++){
         std::string temp = tiles[i];
         char colour = temp[0];
         int shape = temp[1] - 48;
 
         tileBag.addTileEnd(new Tile(colour, shape));
     }
-    //load the turn tracker
-    saveFile >> turnTracker;
-    saveFile.ignore();
+    lineCount++; 
 
+    //set the turn tracker to equal appropriate players turn
+    for(int i = 0; i < NUM_PLAYERS; i++){
+        if(lines[lineCount] == playerArr[i]->getPlayerName()){
+            turnTracker = i;
+        }
+    }
+    lineCount++;
+    if(lines[lineCount].length() > 0 ){
+        turnTracker+=2;
+    }
     //load the game board state
-    setupGameboard();
     int i = 0;
-    std::string boardState;
-    std::getline(saveFile, boardState);
-    while(i <= (int)boardState.length()-2){
-        char colour = boardState[i];
-        int shape = boardState[i+1] - 48;
-        char row = boardState[i+3];
-        int col = boardState[i+4]- 48;
 
-        if (boardState[i+5] != ','){
-            std::string twoNumbers = std::to_string(boardState[i+4]-48) + std::to_string(boardState[i+5]-48);
+    while(i <= (int)lines[lineCount].length()-2){
+        char colour = lines[lineCount][i];
+        int shape = lines[lineCount][i+1] - 48;
+
+        if(!checkColour(colour) || !checkShape(shape)){
+            return false;
+        }
+
+        char row = lines[lineCount][i+3];
+        int col = lines[lineCount][i+4]- 48;
+
+        if(!withinBoard((int)row-65, col)){
+            return false;
+        }
+
+        if (lines[lineCount][i+5] != ','){
+            std::string twoNumbers = std::to_string(lines[lineCount][i+4]-48) 
+                                    + std::to_string(lines[lineCount][i+5]-48);
             col = std::stoi(twoNumbers);
             i++;
         }
@@ -107,7 +141,58 @@ game::game(std::string fileName){
         map[int(row)-65][col] = temp;
         i+=7;
     }
-    gamePlayLoop();
+    return true;
+}
+
+//saves the game to file
+void game::saveGame(){
+    //ask for save name
+    std::string fileName;
+    std::cout<< "please enter file name:" <<std::endl;
+    std::cin >> fileName;
+
+    std::ofstream output(fileName + ".save");
+
+    //save each players information - ID, name, score and hand
+    for(int i = 0; i < NUM_PLAYERS; i++){
+        // output << playerArr[i]->getID() << std::endl;
+        output << playerArr[i]->getPlayerName() << std::endl;
+        output << playerArr[i]->getScore() << std::endl;
+        for(int j = 0; j < playerArr[i]->getHand()->getLength(); j++){
+            output << playerArr[i]->getHand()->getTileAtIndex(j)->getColour() 
+                        << playerArr[i]->getHand()->getTileAtIndex(j)->getShape() 
+                        << ",";
+        }
+        output << std::endl;
+    }
+
+    //save the tilebag
+    for(int i = 0; i <= tileBag.getLength()-1; i++){
+        output << tileBag.getTileAtIndex(i)->colour
+                  << tileBag.getTileAtIndex(i)->shape
+                  << ",";
+    }
+    output << std::endl;
+
+    //save turn tracker
+    output << playerArr[getPlayersTurn()]->getPlayerName() << std::endl;
+    char rowSymbol = 'A';
+
+    //save game board state.
+    for (size_t row = 0; row < map.size(); row++)
+    {
+        for (size_t col = 0; col < map.size(); col++)
+        {
+            
+            if(map[row][col] != nullptr){
+                output << map[row][col]->colour << map[row][col]->shape << "@" << rowSymbol << col << ", ";
+            }            
+        }
+        rowSymbol++;
+    }
+    output << std::endl;
+
+    std::cout << "Game " << fileName << " Has been Saved!" << std::endl;
 }
 
 //setup a randomly generated tilebag
@@ -155,133 +240,6 @@ void game::setupTileBag(){
     }
 }
 
-//loops through gameplay until win condition is met
-void game::gamePlayLoop(){
-    // bool gameEnd = false;
-    bool exitConditionMet = false;
-
-    //gameplay loop
-    while (exitConditionMet == false)
-    {
-        //display the game board
-        displayBoard();
-
-        //display each players score
-        for (int i = 0; i < NUM_PLAYERS; i++)
-        {
-            std::cout << playerArr[i]->getPlayerName() << "'s Score: " << playerArr[i]->getScore() << " | ";
-        }
-        std::cout << std::endl;
-        //display player turn details
-        std::cout << playerArr[getPlayersTurn()]->getPlayerName() << "'s Hand:" << std::endl;  
-
-        //display Players hand
-        for(int i = 0; i < 6; i++){
-            std::cout << playerArr[getPlayersTurn()]->getHand()->getTileAtIndex(i)->getColour() 
-                      << playerArr[getPlayersTurn()]->getHand()->getTileAtIndex(i)->getShape() 
-                      << " ";
-        }
-        std::cout << std::endl;
-
-        //take input for users turn
-        std::cout << "Awaiting user input: " << std::endl;
-        std::cout << "> ";
-        std::string menuInput;
-        std::cin >> menuInput;
-
-        //place tile
-        if(menuInput == "place")
-        {
-            placeTile(menuInput);
-
-        }
-        //replace tile
-        else if (menuInput == "replace")
-        {
-            //TODO
-        }
-        //save game
-        else if (menuInput == "save"){
-            saveGame();
-        }
-        else if (menuInput == "exit"){
-            exitConditionMet = true;
-        }
-        else
-        {
-            std::cout << menuInput << " is not a valid command, please try again!" << std::endl;
-            //ignore the rest of the input
-            std::string ignore;
-            std::getline(std::cin, ignore);
-        }
-
-        // if(playerArr[getPlayersTurn()]->getHandCount() == 0){
-        //     gameEnd = true;
-        // }
-    }
-}
-
-//changes the players turn
-void game::changePlayerTurn(){
-   turnTracker +=1;
-}
-
-//gets the TurnTracker modulus 2
-int game::getPlayersTurn(){
-    return turnTracker%2;
-}
-
-//saves the game to file
-void game::saveGame(){
-    //ask for save name
-    std::string fileName;
-    std::cout<< "please enter file name:" <<std::endl;
-    std::cin >> fileName;
-
-    std::ofstream output(fileName + ".txt");
-
-    //save each players information - ID, name, score and hand
-    for(int i = 0; i < NUM_PLAYERS; i++){
-        output << playerArr[i]->getID() << std::endl;
-        output << playerArr[i]->getPlayerName() << std::endl;
-        output << playerArr[i]->getScore() << std::endl;
-        for(int j = 0; j < playerArr[i]->getHand()->getLength(); j++){
-            output << playerArr[i]->getHand()->getTileAtIndex(j)->getColour() 
-                        << playerArr[i]->getHand()->getTileAtIndex(j)->getShape() 
-                        << ",";
-        }
-        output << std::endl;
-    }
-
-    //save the tilebag
-    for(int i = 0; i <= tileBag.getLength()-1; i++){
-        output << tileBag.getTileAtIndex(i)->colour
-                  << tileBag.getTileAtIndex(i)->shape
-                  << ",";
-    }
-    output << std::endl;
-
-    //save turn tracker
-    output << turnTracker << std::endl;
-    char rowSymbol = 'A';
-
-    //save game board state.
-    for (size_t row = 0; row < map.size(); row++)
-    {
-        for (size_t col = 0; col < map.size(); col++)
-        {
-            
-            if(map[row][col] != nullptr){
-                output << map[row][col]->colour << map[row][col]->shape << "@" << rowSymbol << col << ", ";
-            }            
-        }
-        rowSymbol++;
-    }
-    output << std::endl;
-
-    std::cout << "Game " << fileName << " Has been Saved!" << std::endl;
-}
-
 //setup an empty game board.
 void game::setupGameboard(){
     for (int row = 0; row < BOARD_SIZE; row++)
@@ -301,53 +259,75 @@ void game::setBoardSize(int size){
     this->boardSize = size;
 }
 
-//display game board
-void game::displayBoard(){
-    std::cout << " ";
-    for (int i = 0; i < 2; i++)
+       //    Game Play Methods    //
+       //------------------------//
+//loops through gameplay until win condition is met
+void game::gamePlayLoop(){
+    // bool gameEnd = false;
+    bool exitConditionMet = false;
+
+    //gameplay loop
+    while (exitConditionMet == false && !std::cin.eof())
     {
-        for (size_t j = 0; j < map.size(); j++)
+        //display the game board
+        displayBoard();
+        std::cout << std::endl;
+        std::cout.flush();
+        //display each players score
+        for (int i = 0; i < NUM_PLAYERS; i++)
         {
-            //display the col numbers on the first interation.
-            if(i == 0){
-                //ensuring the spacing is correct for the board display
-                if(j <= 10){
-                    std::cout<< "  " << j;
-                }
-                else{
-                    std::cout<< " " << j;
-                }
-            }
-            //display underlines on the 2nd iteration
-            else if(j == 0){
-                std::cout << "  ----";
-            }
-            else{
-                std::cout << "---";
-            }
-        }
-        std::cout<<std::endl;
-    }
-    char rowLetters = 'A';
-    //loop through the map vector.
-    for (size_t row = 0; row < map.size(); row++)
-    {
-        //display the Row letters.
-        std::cout << rowLetters << " |";
-        rowLetters++;
-        
-        //display the tile or empty space at row and col coordinates.
-        for (size_t col = 0; col < map[row].size(); col++)
-        {
-                if(map[row][col] == nullptr){
-                    std::cout << "  ";
-                } else{
-                    //~~~~need to implement displaying of tile color and shape.~~~~
-                    std::cout << map[row][col]->colour << map[row][col]->shape;
-                }
-                std::cout << "|";            
+            std::cout << playerArr[i]->getPlayerName() << "\'s Score: " << playerArr[i]->getScore() << " | ";
         }
         std::cout << std::endl;
+        //display player turn details
+        std::cout << playerArr[getPlayersTurn()]->getPlayerName() << "'s Hand:" << std::endl;  
+
+        //display Players hand
+        for(int i = 0; i < 6; i++){
+            std::cout << playerArr[getPlayersTurn()]->getHand()->getTileAtIndex(i)->getColour() 
+                      << playerArr[getPlayersTurn()]->getHand()->getTileAtIndex(i)->getShape() 
+                      << " ";
+        }
+        std::cout << std::endl;
+
+        //take input for users turn
+        std::cout << "> ";
+        std::string menuInput;
+        std::cin >> menuInput;
+
+        //place tile
+        if(menuInput == "place")
+        {
+            placeTile(menuInput);
+
+        }
+        //replace tile
+        else if (menuInput == "replace")
+        {
+            replaceTile(menuInput);
+            changePlayerTurn();
+        }
+        //save game
+        else if (menuInput == "save"){
+            saveGame();
+        }
+        else if (menuInput == "exit"){
+            std::cout << "Goodbye" << std::endl;
+            exitConditionMet = true;
+        }
+        else
+        {
+            if(!std::cin.eof()) { // to avoid output on CTRL+D
+                std::cout << menuInput << " is not a valid command, please try again!" << std::endl;
+            }
+            //ignore the rest of the input
+            std::string ignore;
+            std::getline(std::cin, ignore);
+        }
+
+        // if(playerArr[getPlayersTurn()]->getHandCount() == 0){
+        //     gameEnd = true;
+        // }
     }
 }
 
@@ -375,7 +355,7 @@ void game::placeTile(std::string menuInput){
     && checkPlacement(colour, shape, (int)row-65, col)){
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
-        score(int(row) - 65, col, colour, shape);
+
         //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
         map[int(row)-65][col] = temp;
         
@@ -392,70 +372,105 @@ void game::placeTile(std::string menuInput){
         std::string ignore;
         std::getline(std::cin, ignore);
 
-        // std::cout << "something went wrong, please try again!" << std::endl;
+        std::cout << "something went wrong, please try again!" << std::endl;
     }
 }
-void game::score(int row, int col, char colour, int shape){
-    std::cout << "1" << std::endl;
-    //To help cycle through surrounding tiles
-    int neighbourRows[] = {0, 1, 0, -1};
-    int neighbourCols[] = {1, 0, -1, 0};
-    int score = 1;
-    bool checkScoreValid = true;
+
+//replaces tile in users hand with a tile from the bag
+void game::replaceTile(std::string menuInput){
+    char colour;
+    int shape;
+
+    //take in the colour
+    std::cin >> colour;
     
-    //Checks each surrounding tile
-    for(int i = 0; i < 4; i++){
-        int rowCount = 1;
-        std::cout << "2" << std::endl;
-        //Verifies that the current tile is valid
-        if(map[row + neighbourRows[i]][col + neighbourCols[i]]!=nullptr){
-            if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
-            || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
-                bool validQwirkle = true;
-                std::cout << "3" << std::endl;
-                if(score > 1){
-                    score++;
+    //take in the shape
+    std::cin >> shape;
+
+    if(checkHand(colour, shape)){
+        //create a temp tile and call function that removes the tile from player hand
+        Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
+
+        //emove tile from top of the tile bag and add it to the end of players hand and r
+        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+
+        //add the players removed tile back to the tile bag
+        tileBag.addTileEnd(temp);
+
+        //ignore the leftover text in the input stream.
+        std::cin.ignore();
+    } else{
+        //ignore the rest of the input
+        std::string ignore;
+        std::getline(std::cin, ignore);
+
+        std::cout << "Something went wrong, please try again!" << std::endl;
+    }
+}
+
+//changes the players turn
+void game::changePlayerTurn(){
+   turnTracker +=1;
+}
+
+//gets the TurnTracker modulus 2
+int game::getPlayersTurn(){
+    return turnTracker%2;
+}
+
+//display game board
+void game::displayBoard(){
+    std::cout << " ";
+    for (int i = 0; i < 2; i++)
+    {
+        for (size_t j = 0; j < map.size(); j++)
+        {
+            //display the col numbers on the first interation.
+            if(i == 0){
+                //ensuring the spacing is correct for the board display
+                if(j <= 10){
+                    std::cout<< "  " << j;
                 }
-                //Sets the just checked tile to be the current tile
-                int currentRow = row + neighbourRows[i];
-                int currentCol = col + neighbourCols[i];
-                //Loops through the tiles in certain direction until invalid tile is found
-                while(checkScoreValid){
-                    if(map[currentRow][currentCol]!=nullptr){
-                        std::cout << "4" << std::endl;
-                        std::cout << currentRow << " " << currentCol << std::endl;
-                        if(map[currentRow][currentCol]->colour == colour
-                        || map[currentRow][currentCol]->shape == shape){
-                            if(map[currentRow][currentCol]->colour != colour
-                            && map[currentRow][currentCol]->shape != shape){
-                                validQwirkle = false;
-                                std::cout << "False" << std::endl;
-                            }
-                            std::cout << "5" << std::endl;
-                            score++;
-                            rowCount++;
-                            currentRow = currentRow + neighbourRows[i];
-                            currentCol = currentCol + neighbourCols[i];
-                        }else{
-                            checkScoreValid = false;
-                            if(rowCount == 6 && validQwirkle == true){
-                                std::cout << "QWIRKLE" << std::endl;
-                                score += 6;
-                            }
-                        }
-                    }else{
-                            checkScoreValid = false;
-                            if(rowCount == 6 && validQwirkle == true){
-                                score += 6;
-                            }
-                        }
+                else{
+                    std::cout<< " " << j;
                 }
             }
-            
+            //display underlines on the 2nd iteration
+            else if(j == 0){
+                std::cout << "  ----";
+            }
+            else{
+                std::cout << "---";
+            }
         }
+        std::cout << std::endl;
     }
-    playerArr[getPlayersTurn()]->updateScore(score);
+    char rowLetters = 'A';
+    //loop through the map vector.
+    for (size_t row = 0; row < map.size(); row++)
+    {
+        //display the Row letters.
+        std::cout << rowLetters << " |";
+        rowLetters++;
+        
+        //display the tile or empty space at row and col coordinates.
+        for (size_t col = 0; col < map[row].size(); col++)
+        {
+                if(map[row][col] == nullptr){
+                    std::cout << "  ";
+                } else{
+                    //~~~~need to implement displaying of tile color and shape.~~~~
+                    std::cout << map[row][col]->colour << map[row][col]->shape;
+                }
+                std::cout << "|";            
+        }
+        std::cout << std::endl;
+    }
 }
+
+
+      //   CHECKING METHODS   //
+      //----------------------//
 //checks to see if a location is within gameboard
 bool game::withinBoard(int row, int col){
     //check coordinates in bound
@@ -503,7 +518,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
         //check neighbour location to see if within map.
         while(i < 4)
         {
-            // std::cout << "while loop: " << i << std::endl;
+            //checks if the tile is within the board 
             if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])
             && map[row + neighbourRows[i]][col + neighbourCols[i]] != nullptr)
             {
@@ -511,6 +526,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape)
                 {
                     if(checkLineLength(row, col, neighbourRows[i], neighbourCols[i], colour, shape)){
+                        std::cout << "true" << std::endl;
                         isValid = true;
                     } else{
                         isValid = false;
@@ -550,6 +566,7 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
         //see if the next  location is within board boundries
         if(withinBoard(row + dirRow, col + dirCol)
         && map[row + dirRow][col + dirCol] != nullptr){
+
             //check to see if each tile isn't the same colour and shape as the inputed tile.
             if(map[row + dirRow][col + dirCol]->colour == colour
             && map[row + dirRow][col + dirCol]->shape == shape){
@@ -557,13 +574,12 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
                 return false;
             }
             //check to see if there is a tile in the next location
-            if(map[row + dirRow][col + dirCol] != nullptr){
+            if(map[row + dirRow][col + dirCol]->colour == colour 
+            || map[row + dirRow][col + dirCol]->shape == shape){
                 row = row + dirRow;
                 col = col + dirCol;
             } else{
-                //line has ended, break out of loop
-                x = 6;
-                endOfLine = true;
+                return false;
             }
         }
         else{
@@ -582,17 +598,24 @@ bool game::checkLineLength(int row, int col,  int dirRow, int dirCol, char colou
     }
 }
 
-// for in file testing only
-// main(){
-//     // std::string playerNames[2];
-//     // std::cout << "Player 1 Name: " << std::endl;
-//     // std::cin >> playerNames[0];
-//     // std::cout << "Player 2 Name: " << std::endl;
-//     // std::cin >> playerNames[1];
+//checks to see if colour is valid
+bool game::checkColour(char colour){
+    if(colour == RED || colour == ORANGE || colour == YELLOW || 
+        colour == GREEN || colour == BLUE || colour == PURPLE){
+        return true;
+    }
+    else { 
+        return false; 
+    }
+}
 
-//     // std::cin.ignore();
-
-//     // game* newGame = new game(playerNames);
-
-
-// }
+//checks to see if shape is valid
+bool game::checkShape(int shape){
+    if(shape == CIRCLE || shape == STAR_4 || shape == DIAMOND ||
+        shape == SQUARE || shape == STAR_6 || shape == CLOVER){
+        return true;
+    } 
+    else {
+        return false;
+    }
+}

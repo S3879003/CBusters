@@ -8,10 +8,11 @@
 class game{
 public:
     //constructor
-    game(std::string playerNames[]);
+    game();
 
-    //load game constructor
-    game(std::string fileName);
+    bool loadPreviousGame(std::string fileName);
+
+    void startNewGame(std::string playerNames[]);
 
     //destructor
     ~game();
@@ -40,10 +41,17 @@ public:
     //returns players turn
     int getPlayersTurn();
 
+    //set players turn
+    void setPlayersTurn(int i);
+
     //places a new tile on the gameboard
     void placeTile(std::string menuInput);
 
+<<<<<<< HEAD
     void score(int row, int col, char colour, int shape);
+=======
+    void replaceTile(std::string menuInput);
+>>>>>>> e009b6503bc05e8f376c472ffb7076d276b40d51
 
     //checks if row & col coordinates are valid
     bool withinBoard(int row, int col);
@@ -56,6 +64,13 @@ public:
     
     //checks the length of the line on the gameboard
     bool checkLineLength(int row, int col,  int dirRow, int dirCol, char colour, int shape);
+<<<<<<< HEAD
+=======
+
+    bool checkColour(char colour);
+
+    bool checkShape(int shape);
+>>>>>>> e009b6503bc05e8f376c472ffb7076d276b40d51
 private:
     //LinkedList holding all game tiles not in hand/play.
     LinkedList tileBag;

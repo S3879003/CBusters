@@ -1,13 +1,13 @@
 #include "Player.h"
 
 //player constructor
-Player::Player(std::string name, int id, int score, LinkedList* hand): 
-                                        name(name), id(id), score(score), hand(hand)
+Player::Player(std::string name, int id,  int score, LinkedList* hand): 
+                                        name(name), score(score), hand(hand)
                                         {}
 
 //returns players score
 int Player::getScore(){
-    return score;
+    return this->score;
 }
 
 //sets players score
@@ -40,6 +40,10 @@ int Player::getHandCount(){
     return hand->getLength();
 }
 
+void Player::setHand(LinkedList* playersHand){
+    hand = playersHand;
+}
+
 //adds a tile to back of the players hand
 void Player::addTile(Tile* tile){
     hand->addTileEnd(tile);
@@ -49,9 +53,9 @@ int Player::getID(){
     return id;
 }
 
-void Player::setID(int id){
-    this->id = id;
-}
+// void Player::setID(int id){
+//     this->id = id;
+// }
 
 // Tile* Player::tileAtIndex(int i){
 //      if(i >= 0 && i < Player::getHandCount()){
