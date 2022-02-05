@@ -262,11 +262,11 @@ void game::setBoardSize(int size){
        //------------------------//
 //loops through gameplay until win condition is met
 void game::gamePlayLoop(){
-    // bool gameEnd = false;
+    bool gameEnd = false;
     bool exitConditionMet = false;
 
     //gameplay loop
-    while (exitConditionMet == false && !std::cin.eof())
+    while (exitConditionMet == false && !std::cin.eof() || gameEnd == false)
     {
         //display the game board
         displayBoard();
@@ -323,9 +323,21 @@ void game::gamePlayLoop(){
             std::getline(std::cin, ignore);
         }
 
-        // if(playerArr[getPlayersTurn()]->getHandCount() == 0){
-        //     gameEnd = true;
-        // }
+        if(playerArr[getPlayersTurn()]->getHandCount() == 0){
+            gameEnd = true;
+        }
+    }
+    if(gameEnd == true){
+        int highestScoringPlayer;
+        if(playerArr[0]->getScore() > playerArr[1]->getScore()){
+            highestScoringPlayer = 0;
+        }
+        else{
+            highestScoringPlayer = 1;
+        }
+        std::cout << playerArr[highestScoringPlayer]->getPlayerName() 
+                  << " has won! with a score of: "
+                  << playerArr[highestScoringPlayer]->getScore() << std::endl;
     }
 }
 
@@ -377,6 +389,7 @@ void game::placeTile(std::string menuInput){
         std::cout << "something went wrong, please try again!" << std::endl;
     }
 }
+
 void game::score(int row, int col, char colour, int shape){
     //To help cycle through surrounding tiles
     int neighbourRows[] = {0, 1, 0, -1};
