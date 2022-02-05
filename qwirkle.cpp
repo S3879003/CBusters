@@ -92,7 +92,7 @@ int main(void) {
             displayCredits();
          break; }
          case 4: { // Quit (also quit on EOF)
-            std::cout << "Goodbye" << std::endl;
+            // std::cout << "Goodbye" << std::endl;
             inGame = false;
          break; }
          default: {
@@ -103,4 +103,5 @@ int main(void) {
          break; }
       }
    }
+   std::cout << "Goodbye" << std::endl;
 }
