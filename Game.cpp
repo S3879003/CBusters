@@ -229,7 +229,8 @@ void game::setupTileBag(){
     }
 
     //randomize the order of the tiles.
-    auto rng = std::default_random_engine {};
+    std::random_device rd;
+    auto rng = std::default_random_engine { rd() };
     std::shuffle(std::begin(tempVector), std::end(tempVector), rng);
 
     //add each tile to the linked list
@@ -266,7 +267,7 @@ void game::gamePlayLoop(){
     bool exitConditionMet = false;
 
     //gameplay loop
-    while (exitConditionMet == false && !std::cin.eof() || gameEnd == false)
+    while (exitConditionMet == false && !std::cin.eof() && gameEnd == false)
     {
         //display the game board
         displayBoard();
