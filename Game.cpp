@@ -34,7 +34,6 @@ void game::startNewGame(std::string playerNames[]){
     }
 
     this->turnTracker = 0;
-    gamePlayLoop();
 }
 
 void game::setPlayersTurn(int i){
@@ -272,7 +271,6 @@ void game::gamePlayLoop(){
         //display the game board
         displayBoard();
         std::cout << std::endl;
-        std::cout.flush();
         //display each players score
         for (int i = 0; i < NUM_PLAYERS; i++)
         {
@@ -356,7 +354,10 @@ void game::placeTile(std::string menuInput){
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
+
+        std::cout << "b4score" << std::endl;
         score((int)row - 65, col, colour, shape);
+        std::cout << "a4score" << std::endl;
         //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
         map[int(row)-65][col] = temp;
         
@@ -377,62 +378,62 @@ void game::placeTile(std::string menuInput){
     }
 }
 void game::score(int row, int col, char colour, int shape){
-    std::cout << "1" << std::endl;
     //To help cycle through surrounding tiles
     int neighbourRows[] = {0, 1, 0, -1};
     int neighbourCols[] = {1, 0, -1, 0};
     int score = 1;
-    bool checkScoreValid = true;
     
     //Checks each surrounding tile
     for(int i = 0; i < 4; i++){
+        std::cout << i << std::endl;
+        bool checkScoreValid = true;
         int rowCount = 1;
-        std::cout << "2" << std::endl;
         //Verifies that the current tile is valid
-        if(map[row + neighbourRows[i]][col + neighbourCols[i]]!=nullptr){
-            if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
-            || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
-                bool validQwirkle = true;
-                std::cout << "3" << std::endl;
-                if(score > 1){
-                    score++;
-                }
-                //Sets the just checked tile to be the current tile
-                int currentRow = row + neighbourRows[i];
-                int currentCol = col + neighbourCols[i];
-                //Loops through the tiles in certain direction until invalid tile is found
-                while(checkScoreValid){
-                    if(map[currentRow][currentCol]!=nullptr){
-                        std::cout << "4" << std::endl;
-                        std::cout << currentRow << " " << currentCol << std::endl;
-                        if(map[currentRow][currentCol]->colour == colour
-                        || map[currentRow][currentCol]->shape == shape){
-                            if(map[currentRow][currentCol]->colour != colour
-                            && map[currentRow][currentCol]->shape != shape){
-                                validQwirkle = false;
-                                std::cout << "False" << std::endl;
+        if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])){
+            if(map[row + neighbourRows[i]][col + neighbourCols[i]]!=nullptr){
+                std::cout << "test" << std::endl;
+
+                if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
+                || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
+                    bool validQwirkle = true;
+                    if(score > 1){
+                        score++;
+                    }
+                    //Sets the just checked tile to be the current tile
+                    int currentRow = row + neighbourRows[i];
+                    int currentCol = col + neighbourCols[i];
+                    //Loops through the tiles in certain direction until invalid tile is found
+                    while(checkScoreValid){
+                        if(map[currentRow][currentCol]!=nullptr){
+                            if(map[currentRow][currentCol]->colour == colour
+                            || map[currentRow][currentCol]->shape == shape){
+                                if(map[currentRow][currentCol]->colour != colour
+                                && map[currentRow][currentCol]->shape != shape){
+                                    validQwirkle = false;
+                                }
+                                score++;
+                                rowCount++;
+                                currentRow = currentRow + neighbourRows[i];
+                                currentCol = currentCol + neighbourCols[i];
                             }
-                            std::cout << "5" << std::endl;
-                            score++;
-                            rowCount++;
-                            currentRow = currentRow + neighbourRows[i];
-                            currentCol = currentCol + neighbourCols[i];
+                            else{
+                                checkScoreValid = false;
+                                if(rowCount == 6 && validQwirkle == true){
+                                    std::cout << "QWIRKLE" << std::endl;
+                                    score += 6;
+                                }
+                            }
                         }else{
-                            checkScoreValid = false;
-                            if(rowCount == 6 && validQwirkle == true){
-                                std::cout << "QWIRKLE" << std::endl;
-                                score += 6;
+                                checkScoreValid = false;
+                                if(rowCount == 6 && validQwirkle == true){
+                                    std::cout << "QWIRKLE" << std::endl;
+                                    score += 6;
+                                }
                             }
-                        }
-                    }else{
-                            checkScoreValid = false;
-                            if(rowCount == 6 && validQwirkle == true){
-                                score += 6;
-                            }
-                        }
+                    }
                 }
+                
             }
-            
         }
     }
     playerArr[getPlayersTurn()]->updateScore(score);
@@ -562,6 +563,7 @@ bool game::checkHand(char colour, int shape){
 
 //checks to see if the tile placement is valid
 bool game::checkPlacement(char colour, int shape, int row, int col){
+    std::cout << "check placement" << std::endl;
     bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.
@@ -577,18 +579,36 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
         int i = 0;
         int invalidCounter = 0;
         
+        //checking if the placement has tiles on either side of it.
+        for(int i = 0; i < 2; i++){
+            if(withinBoard(row + neighbourRows[i], col + neighbourCols[i]) && withinBoard(row + neighbourRows[i+2], col + neighbourCols[i+2])){
+                if(map[row + neighbourRows[i]][col + neighbourCols[i]] != nullptr
+                && map[row + neighbourRows[i+2]][col + neighbourCols[i+2]] != nullptr){
+
+                    //check if they are of they have a shape or colour in common.
+                    if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == map[row + neighbourRows[i+2]][col + neighbourCols[i+2]]->colour
+                    || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == map[row + neighbourRows[i+2]][col + neighbourCols[i+2]]->shape){
+                    }else{
+                        //return false if they don't share any colour of shape.
+                        std::cout << "invalid placement location!" << std::endl;
+                        return false;
+                    }
+                }
+            }
+        }
+        
         //check neighbour location to see if within map.
         while(i < 4)
         {
-            //checks if the tile is within the board 
+            //checks if the tile is within the board
             if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])
             && map[row + neighbourRows[i]][col + neighbourCols[i]] != nullptr)
             {
+
                 if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape)
                 {
                     if(checkLineLength(row, col, neighbourRows[i], neighbourCols[i], colour, shape)){
-                        std::cout << "true" << std::endl;
                         isValid = true;
                     } else{
                         isValid = false;
@@ -603,6 +623,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
             }
             i++;
         }
+
         if(invalidCounter == 4){
             isValid = false;
             return isValid;

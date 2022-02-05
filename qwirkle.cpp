@@ -42,6 +42,7 @@ int main(void) {
       std::cout << " 2. Load Game" << std::endl;
       std::cout << " 3. Credits (Show student information)" << std::endl;
       std::cout << " 4. Quit" << std::endl;
+      std::cout << ">";
 
       std::cin >> menuSelection;
 
@@ -49,8 +50,10 @@ int main(void) {
          case 1: { // New Game 
             std::string playerNames[2];
             std::cout << "Player 1 Name: " << std::endl;
+            std::cout << ">";
             std::cin >> playerNames[0];
             std::cout << "Player 2 Name: " << std::endl;
+            std::cout << ">";
             std::cin >> playerNames[1];
 
             std::cin.ignore();
@@ -64,6 +67,7 @@ int main(void) {
             std::string inputTmp;
             std::string loadGameFile;
             std::cout << "Enter the filename from which load a game" << std::endl;
+            std::cout << ">";
             // user to enter "save1" (not save1.save)
             std::cin >> inputTmp;
             game* newGame = new game();
