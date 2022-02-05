@@ -1,0 +1,10 @@
+2
+./test_cases/test02
+place Y2 at K9
+place R2 at M9
+place Y1 at K11
+place R1 at M11
+save
+./test_cases/test02game
+exit
+4

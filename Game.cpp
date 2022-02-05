@@ -64,7 +64,7 @@ bool game::loadPreviousGame(std::string fileName){
         lineCount++;
 
         int searchIndex = 0;
-        for(int j = 0; j < 6; j++){
+        for(int j = 0; j < (int)lines[lineCount].length(); j+=3){
             char colour = lines[lineCount][searchIndex];
             int shape = lines[lineCount][searchIndex+1];
             shape = shape-48;
@@ -282,7 +282,7 @@ void game::gamePlayLoop(){
         std::cout << playerArr[getPlayersTurn()]->getPlayerName() << "'s Hand:" << std::endl;  
 
         //display Players hand
-        for(int i = 0; i < 6; i++){
+        for(int i = 0; i < playerArr[getPlayersTurn()]->getHand()->getLength(); i++){
             std::cout << playerArr[getPlayersTurn()]->getHand()->getTileAtIndex(i)->getColour() 
                       << playerArr[getPlayersTurn()]->getHand()->getTileAtIndex(i)->getShape() 
                       << " ";
@@ -298,7 +298,12 @@ void game::gamePlayLoop(){
         if(menuInput == "place")
         {
             placeTile(menuInput);
-
+            if(playerArr[getPlayersTurn()]->getHand()->getLength() == 0){
+                std::cout << "game end" << std::endl;
+                playerArr[getPlayersTurn()]->updateScore(6);
+                gameEnd = true;
+            }
+            changePlayerTurn();
         }
         //replace tile
         else if (menuInput == "replace")
@@ -322,10 +327,6 @@ void game::gamePlayLoop(){
             //ignore the rest of the input
             std::string ignore;
             std::getline(std::cin, ignore);
-        }
-
-        if(playerArr[getPlayersTurn()]->getHandCount() == 0){
-            gameEnd = true;
         }
     }
     if(gameEnd == true){
@@ -379,7 +380,6 @@ void game::placeTile(std::string menuInput){
 
         //ignore the leftover text in the input stream.
         std::cin.ignore();
-        changePlayerTurn();
     } else{
         //ignore the rest of the input
         std::string ignore;
@@ -459,8 +459,8 @@ void game::replaceTile(std::string menuInput){
     
     //take in the shape
     std::cin >> shape;
-
-    if(checkHand(colour, shape)){
+    
+    if(checkHand(colour, shape) && playerArr[getPlayersTurn()]->getHand()->getLength() == 6){
         //create a temp tile and call function that removes the tile from player hand
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
@@ -573,7 +573,6 @@ bool game::checkHand(char colour, int shape){
 
 //checks to see if the tile placement is valid
 bool game::checkPlacement(char colour, int shape, int row, int col){
-    std::cout << "check placement" << std::endl;
     bool isValid = true;
     
     //if its first turn of the game, player can place anywhere on board.

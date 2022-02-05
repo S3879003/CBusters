@@ -1,0 +1,28 @@
+console commands used for testing.
+1. ./qwirkle < ./test_cases/test0X.input >> ./test_cases/test0X.gameout
+2. diff -w ./test_cases/test0X.output ./test_cases/test0X.gameout
+3. diff -w -y ./test_cases/test0X.expsave ./test_cases/test0Xgame.save
+
+files needed:
+1. test0X.input - inputs all the commands
+2. test0X.output - expected output
+3. test0X.save - inputted save file
+4. test0X.expsave - expected output save file
+
+//placement tests + scoring
+test01: place a qwirkle
+test02: placing a tile on the corner of 2 lines - all 4 possible ways
+test03: placing tiles on map edge corner
+test04: running out of tiles/game finish
+
+// error tests
+test05: placing an tile outside map bounds
+test06: placing a tile not in hand
+test07: placing a that isn't touching other tiles
+test08: placing a tile that isn't of correct colour or shape
+test09: replacing a tile with no tiles left in the tile bag
+test10: placing a tile on a line already 6 long
+test11: placing a tile that isn't of correct shape on one line but is on another
+test12: placing a tile that is the same as another in that line
+
+

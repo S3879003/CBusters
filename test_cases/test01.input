@@ -1,7 +1,7 @@
 2
-./test_cases/test01Input
+./test_cases/test01
 place B4 at L15
 save
-./test_cases/test01Output
+./test_cases/test01game
 exit
 4

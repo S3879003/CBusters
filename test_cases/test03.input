@@ -1,0 +1,19 @@
+2
+./test_cases/test03
+place G6 at A0
+exit
+2
+./test_cases/test03
+place G6 at Z0
+exit
+2
+./test_cases/test03
+place G6 at A25
+exit
+2
+./test_cases/test03
+place G6 at Z25
+save
+./test_cases/test03game
+exit
+4
