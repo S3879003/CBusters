@@ -45,6 +45,7 @@ int main(void) {
       std::cout << ">";
 
       std::cin >> menuSelection;
+      std::cin.ignore();
 
       switch (menuSelection) {
          case 1: { // New Game 
