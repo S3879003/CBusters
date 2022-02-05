@@ -1,0 +1,7 @@
+2
+./test_cases/test01Input
+place B4 at L15
+save
+./test_cases/test01Output
+exit
+4

@@ -368,9 +368,7 @@ void game::placeTile(std::string menuInput){
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
 
-        std::cout << "b4score" << std::endl;
         score((int)row - 65, col, colour, shape);
-        std::cout << "a4score" << std::endl;
         //convert row to ascii value and minus 65 so a = 0, b = 1 etc.
         map[int(row)-65][col] = temp;
         
@@ -399,13 +397,11 @@ void game::score(int row, int col, char colour, int shape){
     
     //Checks each surrounding tile
     for(int i = 0; i < 4; i++){
-        std::cout << i << std::endl;
         bool checkScoreValid = true;
         int rowCount = 1;
         //Verifies that the current tile is valid
         if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])){
             if(map[row + neighbourRows[i]][col + neighbourCols[i]]!=nullptr){
-                std::cout << "test" << std::endl;
 
                 if(map[row + neighbourRows[i]][col + neighbourCols[i]]->colour == colour
                 || map[row + neighbourRows[i]][col + neighbourCols[i]]->shape == shape){
@@ -612,7 +608,7 @@ bool game::checkPlacement(char colour, int shape, int row, int col){
         }
         
         //check neighbour location to see if within map.
-        while(i < 4)
+        while(i < 4 && isValid == true)
         {
             //checks if the tile is within the board
             if(withinBoard(row + neighbourRows[i], col + neighbourCols[i])
