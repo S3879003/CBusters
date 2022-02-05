@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 #define EXIT_SUCCESS    0
 
@@ -45,6 +46,7 @@ int main(void) {
       std::cout << ">";
 
       std::cin >> menuSelection;
+      std::cin.ignore();
 
       switch (menuSelection) {
          case 1: { // New Game 
@@ -92,14 +94,17 @@ int main(void) {
             displayCredits();
          break; }
          case 4: { // Quit (also quit on EOF)
-            // std::cout << "Goodbye" << std::endl;
             inGame = false;
          break; }
          default: {
             if(!std::cin.eof()) {
                std::cout << "Invalid Input" << std::endl;
+               std::cin.clear();
+            // ignore input if non-valid
+               std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             }
             // std::cin >> menuSelection;
+            
          break; }
       }
    }
