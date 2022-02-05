@@ -1,5 +1,7 @@
 2
-./test_cases/test07
+./test_cases/test10
 place B1 at F11
+save
+./test_cases/test10game
 exit
 4

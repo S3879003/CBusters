@@ -68,7 +68,7 @@ public:
     bool checkShape(int shape);
 private:
     //LinkedList holding all game tiles not in hand/play.
-    LinkedList tileBag;
+    LinkedList* tileBag;
 
     //array of the the players.
     Player* playerArr[NUM_PLAYERS];

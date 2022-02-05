@@ -1,5 +1,7 @@
 2
-./test_cases/test07
+./test_cases/test09
 replace B1
+save
+./test_cases/test09game
 exit
 4

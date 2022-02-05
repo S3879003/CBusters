@@ -1,5 +1,7 @@
 2
 ./test_cases/test06
 place O5 at Q16
+save
+./test_cases/test06game
 exit
 4

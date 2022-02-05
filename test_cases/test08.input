@@ -1,5 +1,7 @@
 2
-./test_cases/test07
+./test_cases/test08
 place B1 at P12
+save
+./test_cases/test08game
 exit
 4

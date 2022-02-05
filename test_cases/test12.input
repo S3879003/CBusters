@@ -1,0 +1,7 @@
+2
+./test_cases/test12
+place R4 at N6
+save
+./test_cases/test12game
+exit
+4

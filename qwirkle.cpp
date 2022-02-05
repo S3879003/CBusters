@@ -28,7 +28,7 @@ void displayCredits() {
    std::cout << "----------------------------------" << std::endl;
 }
 
-int main(void) {
+ int main(int argc, char** argv) {
    bool inGame = true;
    int menuSelection = 0;
 
@@ -64,6 +64,7 @@ int main(void) {
             game* newGame = new game();
             newGame->startNewGame(playerNames);
             newGame->gamePlayLoop();
+            delete newGame;
          break; }
          case 2: { // Load Game
             std::string inputTmp;
@@ -89,13 +90,22 @@ int main(void) {
             } else {
                std::cout << "Error: file does not exist" << std::endl;
             }
-         break; }
-         case 3: { // Credits (Show student information)
+            delete newGame;
+            break; 
+         }
+         // Credits (Show student information)
+         case 3: 
+         { 
             displayCredits();
-         break; }
-         case 4: { // Quit (also quit on EOF)
+            break; 
+         }
+         // Quit (also quit on EOF)
+         case 4: 
+         { 
             inGame = false;
-         break; }
+            break; 
+         }
+
          default: {
             if(!std::cin.eof()) {
                std::cout << "Invalid Input" << std::endl;
@@ -105,7 +115,8 @@ int main(void) {
             }
             // std::cin >> menuSelection;
             
-         break; }
+             break; 
+         }
       }
    }
    std::cout << "Goodbye" << std::endl;

@@ -29,7 +29,7 @@ void game::startNewGame(std::string playerNames[]){
         // ~~initlize the player[i] with their hand.~~
         playerArr[i] = new Player(playerNames[i], i, 0, hand);
         for(int x = 0; x < 6; x++){
-            playerArr[i]->getHand()->addTileEnd(tileBag.remove_front());
+            playerArr[i]->getHand()->addTileEnd(tileBag->remove_front());
         }
     }
 
@@ -83,21 +83,24 @@ bool game::loadPreviousGame(std::string fileName){
     }
 
     // load the tilebag
+    if(lines[lineCount].length() > 0){
     char delimiter = ',';
     std::vector<std::string> tiles;
     std::string tile;
 
+
     std::stringstream sstream(lines[lineCount]);
     while(std::getline(sstream, tile, delimiter)){
         tiles.push_back(tile);
-    }
+    }  
 
     for(int i = 0; i < (int)tiles.size()-1; i++){
         std::string temp = tiles[i];
         char colour = temp[0];
         int shape = temp[1] - 48;
 
-        tileBag.addTileEnd(new Tile(colour, shape));
+        tileBag->addTileEnd(new Tile(colour, shape));
+    }   
     }
     lineCount++; 
 
@@ -166,9 +169,9 @@ void game::saveGame(){
     }
 
     //save the tilebag
-    for(int i = 0; i <= tileBag.getLength()-1; i++){
-        output << tileBag.getTileAtIndex(i)->colour
-                  << tileBag.getTileAtIndex(i)->shape
+    for(int i = 0; i <= tileBag->getLength()-1; i++){
+        output << tileBag->getTileAtIndex(i)->colour
+                  << tileBag->getTileAtIndex(i)->shape
                   << ",";
     }
     output << std::endl;
@@ -236,7 +239,7 @@ void game::setupTileBag(){
     //add each tile to the linked list
     for(int i = 0; i < (int)tempVector.size(); ++i){
         //add each tile to the end of the linkedList
-        tileBag.addTileEnd(tempVector[i]);
+        tileBag->addTileEnd(tempVector[i]);
     }
 }
 
@@ -299,17 +302,14 @@ void game::gamePlayLoop(){
         {
             placeTile(menuInput);
             if(playerArr[getPlayersTurn()]->getHand()->getLength() == 0){
-                std::cout << "game end" << std::endl;
-                playerArr[getPlayersTurn()]->updateScore(6);
                 gameEnd = true;
             }
-            changePlayerTurn();
         }
         //replace tile
         else if (menuInput == "replace")
         {
             replaceTile(menuInput);
-            changePlayerTurn();
+            
         }
         //save game
         else if (menuInput == "save"){
@@ -341,6 +341,11 @@ void game::gamePlayLoop(){
                   << " has won! with a score of: "
                   << playerArr[highestScoringPlayer]->getScore() << std::endl;
     }
+
+
+    delete playerArr;
+    delete tileBag;
+
 }
 
 //places a new tile on the gameboard
@@ -374,8 +379,15 @@ void game::placeTile(std::string menuInput){
         map[int(row)-65][col] = temp;
         
         //add new tile to the end of players hand and remove tile from top of the tile bag.
-        if(tileBag.getLength() > 0){
-            playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        if(tileBag->getLength() > 0){
+            playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag->remove_front());
+        }
+
+        //continue game if player still have tiles else Award player with 6 points if they placed the final tile
+        if(playerArr[getPlayersTurn()]->getHand()->getLength() != 0){
+            changePlayerTurn();
+        } else{
+            playerArr[getPlayersTurn()]->updateScore(6);
         }
 
         //ignore the leftover text in the input stream.
@@ -465,13 +477,15 @@ void game::replaceTile(std::string menuInput){
         Tile* temp = playerArr[getPlayersTurn()]->getHand()->placeTile(new Tile(colour, shape));
 
         //emove tile from top of the tile bag and add it to the end of players hand and r
-        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag.remove_front());
+        playerArr[getPlayersTurn()]->getHand()->addTileEnd(tileBag->remove_front());
 
         //add the players removed tile back to the tile bag
-        tileBag.addTileEnd(temp);
+        tileBag->addTileEnd(temp);
 
         //ignore the leftover text in the input stream.
         std::cin.ignore();
+
+        changePlayerTurn();
     } else{
         //ignore the rest of the input
         std::string ignore;

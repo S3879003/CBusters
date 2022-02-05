@@ -22,7 +22,7 @@ test07: placing a that isn't touching other tiles
 test08: placing a tile that isn't of correct colour or shape
 test09: replacing a tile with no tiles left in the tile bag
 test10: placing a tile on a line already 6 long
-test11: placing a tile that isn't of correct shape on one line but is on another
+test11: placing a tile that isn't of correct shape/colour on one line but is on another
 test12: placing a tile that is the same as another in that line
 
 

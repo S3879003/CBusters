@@ -1,5 +1,7 @@
 2
 ./test_cases/test07
 place B1 at Z0
+save
+./test_cases/test07game
 exit
 4
